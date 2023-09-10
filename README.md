@@ -16,7 +16,7 @@ The application supports users in documentation and quality control of their fun
     - (Optional) Automated documentation using OpenAI API
     - (Optional) Automated generation of unit tests using OpenAI API
     - (Optional) Automated execution of unit tests using AWS Lambda
-    - (Optinal) Automated keyword classification using OpenAI API
+    - (Optional) Automated keyword classification using OpenAI API
 - Users are given possibility to refine their code before saving, based on feedback
 - Users can classify their functions using keywords
 
