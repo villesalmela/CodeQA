@@ -219,6 +219,7 @@ def classify():
     
 
 @app.route("/save_new_function")
+@needs_user
 def save_new_function():
     expected_args = ["source_code_documented", "source_code_unittests", "function_keywords", "function_name",
                      "function_usecase"]
@@ -244,6 +245,7 @@ def save_new_function():
     return redirect(url_for("view_function", function_id=function_id))
 
 @app.route("/functions/<function_id>")
+@needs_user
 def view_function(function_id):
     fdata = dbrunner.get_function(int(function_id))
     fdata["code"] = code_format.format(fdata["code"])
@@ -252,6 +254,7 @@ def view_function(function_id):
     return render_template("function.html", fdata=fdata)
 
 @app.route("/functions")
+@needs_user
 def list_functions():
     fdata = dbrunner.list_functions()
     return render_template("functions.html", fdata=fdata)
