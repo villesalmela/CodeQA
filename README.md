@@ -55,3 +55,12 @@ To create an account, you need to use your university email address.
 Test account is available:
 - username: testuser@villesalmela.fi
 - password: password
+
+
+One test function was saved to the library using this input:
+```python
+def celsius_to_fahrenheit(celsius):
+    fahrenheit = (9/5) * celsius + 32
+    return fahrenheit
+```
+Feel free to try the process with that one, or come up with something else.
