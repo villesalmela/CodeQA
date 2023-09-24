@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Code QA{% endblock %}
+{% block body %}
+<h1>{{ fdata.name }}</h1>
+<a href="/">Home page</a><br>
+<a href="/functions">Browse Functions</a>
+<h3>Author: {{ fdata.username }}</h3>
+<h3>Keywords:</h3>
+<ul>
+    {% for item in fdata.keywords %}
+    <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+<h3>Use Case</h3>
+<p>{{ fdata.usecase }}</p>
+<h3>Source Code</h3>
+<div>
+    {{ fdata.code|safe }}
+</div>
+<h3>Unit Tests</h3>
+<div>
+    {{ fdata.tests|safe }}
+</div>
+{% endblock %}
