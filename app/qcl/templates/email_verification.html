@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Login to Code QA{% endblock %}
+{% block body %}
+<h1>Email Verification</h1>
+<p>Please enter the verification code you received in your email.</p>
+{% if error %}
+<span style="color: red;">The code is incorrect</span>
+{% endif %}
+<form method="POST" action="/verify_email">
+    {{ form.csrf_token }}
+    <div>{{ form.code.label }}: {{ form.code() }}</div>
+    <input type="submit" value="Submit">
+</form>
+{% endblock %}
