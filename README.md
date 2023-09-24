@@ -27,3 +27,31 @@ The application supports users in documentation and quality control of their fun
 ### Library management
 - Administrators can manage users and saved functions
 - Users can remove their own saved functions
+
+## Status
+### Operational functionalities
+- Users can create new accounts using their email as username
+- Users can save new functions to the library
+    - Linting with pylint
+    - Automated documentation using OpenAI API
+    - Automated generation of unit tests using OpenAI API
+    - Automated execution of unit tests using AWS Lambda
+    - Automated keyword classification using OpenAI API
+- Users can browse (not search) functions saved by other people
+
+### TODO
+- Type checking using mypy
+- Security checking using bandit
+- Search and rating functionality
+- User and library management functionality
+- Improve user interface and visuals
+
+## Testing
+Application is packaged into docker container using Github Action, and uploaded to AWS ECR by the pipeline.
+AWS AppRunner is serving the app, which is available at https://codeqa.online
+
+To create an account, you need to use your university email address.
+
+Test account is available:
+- username: testuser@villesalmela.fi
+- password: password
