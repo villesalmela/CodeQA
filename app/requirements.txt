@@ -1,0 +1,17 @@
+flask
+flask_api
+flask_wtf
+gunicorn
+requests
+psycopg2
+flask-sqlalchemy
+boto3
+python-dotenv
+mailjet_rest
+email-validator
+openai
+pygments
+bleach
+bs4
+flask-codemirror
+pylint
