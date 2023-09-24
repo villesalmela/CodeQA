@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block head %}{{ codemirror.include_codemirror() }}{% endblock %}
+{% block title %}Code QA{% endblock %}
+{% block body %}
+<h1>Document your function</h1>
+<p>Click 'Generate Docs' to have OpenAI to automatically enhance your code with comments and docstrings.
+    Feel free to further improve the result, before clicking 'Next'.
+</p>
+{% if form.errors %}
+<ul class="errors">
+    {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+    {% for error in field_errors %}
+    <li>{{ form[field_name].label }}: {{ error }}</li>
+    {% endfor %}
+    {% endfor %}
+</ul>
+{% endif %}
+<form method="POST" action="/doc">
+    {{ form.csrf_token }}
+    <div>{{ form.code.label }} <br> {{ form.code }}</div>
+    <div>{{ form.documented.label }} <br> {{ form.documented }}</div>
+    {{ form.generate }}
+    {{ form.next }}
+</form>
+{% endblock %}

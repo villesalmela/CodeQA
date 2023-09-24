@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Code QA{% endblock %}
+{% block body %}
+<h1>Name and Classify your function</h1>
+<p>Give your function and name and describe its use case. Click 'Generate Keywords' to have OpenAI
+    automatically generate a list of relevant keywords for you. You can modify the results before saving the function.
+</p>
+{% if form.errors %}
+<ul class="errors">
+    {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+    {% for error in field_errors %}
+    <li>{{ form[field_name].label }}: {{ error }}</li>
+    {% endfor %}
+    {% endfor %}
+</ul>
+{% endif %}
+<form method="POST" action="/classify">
+    {{ form.csrf_token }}
+    <div>{{ form.name.label }} <br> {{ form.name }}</div>
+    <div>{{ form.usecase.label }} <br> {{ form.usecase }}</div>
+    <div>{{ form.keywords.label }} <br> {{ form.keywords }}</div>
+    {{ form.generate }}
+    {{ form.save }}
+</form>
+{% endblock %}
