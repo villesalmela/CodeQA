@@ -3,9 +3,17 @@ on:
   push:
     branches:
       - main
+    paths:
+      - app/**
+      - .dockerignore
+      - .Dockerfile
   pull_request:
     branches:
       - main
+    paths:
+      - app/**
+      - .dockerignore
+      - .Dockerfile
 jobs:
   deploy:
     runs-on: ubuntu-latest
