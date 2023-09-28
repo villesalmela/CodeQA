@@ -28,16 +28,20 @@ codemirror = CodeMirror(app)
 def needs_user(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        if "user_role" not in session or session["user_role"] not in ["user", "admin"]:
+        if "user_role" not in session:
             return redirect(url_for("unauthorized"))
+        elif session["user_role"] not in ["user", "admin"]:
+            return redirect(url_for("forbidden"))
         return func(*args, **kwargs)
     return wrapper
 
 def needs_admin(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        if "user_role" not in session or session["user_role"] != "admin":
+        if "user_role" not in session:
             return redirect(url_for("unauthorized"))
+        elif session["user_role"] != "admin":
+            return redirect(url_for("forbidden"))
         return func(*args, **kwargs)
     return wrapper
 
@@ -49,6 +53,10 @@ def unauthorized():
 @app.route("/badrequest")
 def badrequest():
     return render_template("badrequest.html"), status.HTTP_400_BAD_REQUEST
+
+@app.route("/forbidden")
+def forbidden():
+    return render_template("forbidden.html"), status.HTTP_403_FORBIDDEN
 
 class SignupForm(FlaskForm):
     username = StringField('Username', validators=[
