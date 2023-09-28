@@ -44,11 +44,11 @@ def needs_admin(func):
 
 @app.route("/unauthorized")
 def unauthorized():
-    return "You are not authorized to access this page.", status.HTTP_401_UNAUTHORIZED
+    return render_template("unauthorized.html"), status.HTTP_401_UNAUTHORIZED
 
 @app.route("/badrequest")
 def badrequest():
-    return "Your request was not valid.", status.HTTP_400_BAD_REQUEST
+    return render_template("badrequest.html"), status.HTTP_400_BAD_REQUEST
 
 class SignupForm(FlaskForm):
     username = StringField('Username', validators=[
