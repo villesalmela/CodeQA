@@ -3,6 +3,14 @@
 {% block title %}Code QA{% endblock %}
 {% block body %}
 <h1>Test your function</h1>
+<nav class="trail">
+    <ul>
+        <li><a href="/add">Lint</a></li>
+        <li><a href="/doc">Document</a></li>
+        <li><strong>Test</strong></li>
+        <li>Classify</li>
+    </ul>
+</nav>
 <p>Click 'Generate Tests' to have OpenAI automatically generate a set of unit tests for your code.
     You can then review and modify the tests, before running them with 'Run Tests'
 </p>
