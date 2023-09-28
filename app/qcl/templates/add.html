@@ -53,9 +53,9 @@
     {{ form.code.label }}: {{ form.code }}
     {{ form.lint }} {{ form.doc }}
 </form>
-{% if post %}
+{% if lint_result is defined %}
 <h2>Linting Results</h2>
-{% if lint_result %}
+{% if lint_result|length > 0 %}
 <table>
     <thead>
         <tr>
