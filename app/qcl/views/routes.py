@@ -11,7 +11,7 @@ from flask import render_template, request, session, redirect, url_for
 from flask_api import status
 from flask_wtf import FlaskForm
 from flask_codemirror.fields import CodeMirrorField
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length
 
 import logging
@@ -106,14 +106,14 @@ class TestForm(FlaskForm):
     next = SubmitField("Next")
 
 class ClassifyForm(FlaskForm):
-    keywords = StringField("Keywords (comma separated)", validators=[
+    keywords = TextAreaField("Keywords (comma separated)", validators=[
         Length(min=3, max=200)
     ])
     name = StringField("Function name", validators=[
         DataRequired(),
         Length(min=3, max=50)
     ])
-    usecase = StringField("Use case", validators=[
+    usecase = TextAreaField("Use case", validators=[
         DataRequired(),
         Length(min=10, max=500)
     ])
