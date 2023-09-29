@@ -1,5 +1,5 @@
 /* row highlight in CodeMirror code editor */
-.line-highlight { background-color: dimgrey; }
+.line-highlight { background-color: dimgrey; position: absolute;}
 
 /* code formatting with Pygments*/
 pre { line-height: 125%; }
