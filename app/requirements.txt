@@ -11,7 +11,5 @@ mailjet_rest
 email-validator
 openai
 pygments
-bleach
 bs4
-flask-codemirror
 pylint
