@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
-{% block head %}{{ codemirror.include_codemirror() }}{% endblock %}
+{% block head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.28.0/ace.js"
+    integrity="sha512-ZxGMf7jYJjId6DxujolfBm1Fgk3eNuujx2bg1oFB6jlXhj33BR47Pnh4wLRhvdCpwoWCKP23sdLQPrIBlTEFKA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="/static/functions.js"></script>
+{% endblock %}
 {% block title %}Code QA{% endblock %}
 {% block body %}
 <h1>Document your function</h1>
@@ -25,9 +30,38 @@
 {% endif %}
 <form method="POST" action="/doc">
     {{ form.csrf_token }}
-    <div>{{ form.code.label }} <br> {{ form.code }}</div>
-    <div>{{ form.documented.label }} <br> {{ form.documented }}</div>
+    <label for="editor_box_code">Source Code</label><br>
+    <div id="editor_box_code" style="height: 300px; width: 500px;"></div>
+    <input type="hidden" id="code" name="code">
+    <label for="editor_box_documented">Source Code (Documented)</label><br>
+    <div id="editor_box_documented" style="height: 300px; width: 500px;"></div>
+    <input type="hidden" id="documented" name="documented">
     {{ form.generate }}
     {{ form.next }}
 </form>
+<script>
+    var editor_code = ace.edit("editor_box_code");
+    editor_code.setTheme("ace/theme/monokai");
+    editor_code.getSession().setMode("ace/mode/python");
+    editor_code.setValue({{ form.code.data | tojson | safe }});
+    editor_code.setHighlightActiveLine(false);
+    editor_code.clearSelection()
+
+    // add editor content to form when it is submitted
+    document.querySelector('form').addEventListener('submit', function () {
+        document.getElementById('code').value = editor_code.getValue();
+    });
+
+    var editor_documented = ace.edit("editor_box_documented");
+    editor_documented.setTheme("ace/theme/monokai");
+    editor_documented.getSession().setMode("ace/mode/python");
+    editor_documented.setValue({{ form.documented.data | tojson | safe }});
+    editor_documented.setHighlightActiveLine(false);
+    editor_documented.clearSelection()
+
+    // add editor content to form when it is submitted
+    document.querySelector('form').addEventListener('submit', function () {
+        document.getElementById('documented').value = editor_documented.getValue();
+    });
+</script>
 {% endblock %}

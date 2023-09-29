@@ -10,15 +10,12 @@ import json
 from flask import render_template, request, session, redirect, url_for
 from flask_api import status
 from flask_wtf import FlaskForm
-from flask_codemirror.fields import CodeMirrorField
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length
 
 import logging
 logging.basicConfig(level=logging.INFO)
 
-from flask_codemirror import CodeMirror
-codemirror = CodeMirror(app)
 
 
 def needs_user(func):
@@ -82,27 +79,27 @@ class EmailVerificationForm(FlaskForm):
     ])
 
 class CodeForm(FlaskForm):
-    code = CodeMirrorField("Source Code", language="python", config={"linenumbers": True}, validators=[
+    code = StringField(validators=[
         Length(min=10, max=1500)
     ])
     lint = SubmitField("Run Linting")
     doc = SubmitField("Next")
 
 class DocForm(FlaskForm):
-    code = CodeMirrorField("Original Source Code", language="python", config={"linenumbers": True}, validators=[
+    code = StringField(validators=[
         Length(min=10, max=1500)
     ])
-    documented = CodeMirrorField("Documented Source Code", language="python", config={"linenumbers": True}, validators=[
+    documented = StringField(validators=[
         Length(min=10, max=2000)
     ])
     generate = SubmitField("Generate Docs", render_kw={"formnovalidate": True})
     next = SubmitField("Next")
 
 class TestForm(FlaskForm):
-    documented = CodeMirrorField("Documented Source Code", language="python", config={"linenumbers": True}, validators=[
+    documented = StringField(validators=[
         Length(min=10, max=2000)
     ])
-    unittests = CodeMirrorField("Unit Tests", language="python", config={"linenumbers": True}, validators=[
+    unittests = StringField(validators=[
         Length(min=10, max=3000)
     ])
     generate = SubmitField("Generate Tests", render_kw={"formnovalidate": True})
