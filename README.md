@@ -56,7 +56,6 @@ Test account is available:
 - username: testuser@villesalmela.fi
 - password: password
 
-
 One test function was saved to the library using this input:
 ```python
 def celsius_to_fahrenheit(celsius):
@@ -64,3 +63,36 @@ def celsius_to_fahrenheit(celsius):
     return fahrenheit
 ```
 Feel free to try the process with that one, or come up with something else.
+
+### Local Testing
+While you can run the web app and database locally, some components don't currently have local options.
+1. Install docker and docker-compose to your workstation
+1. Setup a PostgreSQL server
+    - *ENV: DB_HOST, DB_PORT, DB_PASSWORD, DB_USER, DB_NAME*
+1. Create a new [AWS VPC](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-getting-started.html), which will be used to isolate the lambda function
+    - Give it one subnet, and no access to other networks
+1. Create a new [AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/getting-started.html) function
+    - *ENV: PYTEST_REGION*
+    - Modify the automatically created [execution role](https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html), which the lambda function will assume
+        - Set the role to have one policy, [AWSDenyALL](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AWSDenyAll.html). \
+        This will limit any damage that can occur if malicious user manages to escape isolation. 
+    - Upload the [code for the lambda function](aws/lambda/lambda_function.py)
+    - Create a [resource based policy](https://docs.aws.amazon.com/lambda/latest/dg/access-control-resource-based.html) that allows invoking this lambda function
+    - Create an user, and assing it the policy you just created
+        - [Setup an access key](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html)
+        - *ENV: PYTEST_KEY_ID, PYTEST_KEY_SECRET*
+
+1. Setup [OpenAI API](https://platform.openai.com/docs/introduction) key
+    - *ENV: OPENAI_API_KEY*
+1. Setup [Mailjet](mailjet.com) account
+    - *ENV: MJ_APIKEY_PUBLIC, MJ_APIKEY_SECRET*
+    - [create a template for transactional email](https://documentation.mailjet.com/hc/en-us/articles/360042952713-Mailjet-s-Email-Editor-for-Transactional-Emails)
+        - *ENV: MJ_TEMPLATE_ID*
+    - the template must:
+        - accept one variable: "VERIFICATION_CODE"
+        - include default subject and sender
+1. Place the environment variables in [this template](app/.env)
+1. In project's root folder, run "docker-compose up"
+    - this will build and start the image, and make the app available at http://localhost:5001
+
+
