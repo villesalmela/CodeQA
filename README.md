@@ -28,6 +28,20 @@ The application supports users in documentation and quality control of their fun
 - Administrators can manage users and saved functions
 - Users can remove their own saved functions
 
+## Database Schema
+### Users
+| name              | type    | default                                 | references | description                             |
+|-------------------|---------|-----------------------------------------|------------|-----------------------------------------|
+| uid               | UUID    | gen_random_uuid()                       |            | unique identifier for all users         |
+| username          | TEXT    |                                         |            | username in plain text                  |
+| password          | TEXT    |                                         |            | hashed password                         |
+| verification_code | TEXT    |                                         |            | hashed verification code                |
+| admin             | BOOLEAN | FALSE                                   |            | flag is true if user is administrator   |
+| verified          | BOOLEAN | FALSE                                   |            | flag is true if user has verified email |
+| disabled          | BOOLEAN | FALSE                                   |            | flag is true if user is disabled        |
+| created           | INT     | EXTRACT(EPOCH  FROM  CURRENT_TIMESTAMP) |            | timestamp of creation, in unix format   |
+| locked            | INT     |                                         |            | timestamp of locking, in unix format    |
+
 ## Status
 ### Operational functionalities
 - Users can create new accounts using their email as username
