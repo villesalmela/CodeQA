@@ -132,7 +132,7 @@ While you can run the web app and database locally, some components don't curren
         - *ENV: PYTEST_KEY_ID, PYTEST_KEY_SECRET*
 1. Setup [OpenAI API](https://platform.openai.com/docs/introduction) key
     - *ENV: OPENAI_API_KEY*
-1. Setup [Mailjet](mailjet.com) account
+1. Setup [Mailjet](https://www.mailjet.com) account
     - *ENV: MJ_APIKEY_PUBLIC, MJ_APIKEY_SECRET*
     - [create a template for transactional email](https://documentation.mailjet.com/hc/en-us/articles/360042952713-Mailjet-s-Email-Editor-for-Transactional-Emails)
         - *ENV: MJ_TEMPLATE_ID*
@@ -141,9 +141,9 @@ While you can run the web app and database locally, some components don't curren
         - include default subject and sender
 1. Clone this project to your workstation
 1. Change directory to project root
-1. Run `git update-index --skip-worktree .devcontainer/devcontainer.env`
-    - This will prevent your environment variables from being included in commits
-1. Place the environment variables in [this template](.devcontainer/devcontainer.env)
+1. Copy the template for environment variables from [this template](.devcontainer/devcontainer.env.example)
+    - Paste the template values in a new file, located in `.devcontainer/devcontainer.env`
+    - Place secret values in the newly created file
 1. In VS Code, press F1
 1. Enter command `>dev containers: open folder in container`
     - select the project root folder
