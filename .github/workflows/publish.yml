@@ -10,6 +10,8 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    env:
+        REGISTRY: ${{ vars.AWS_ACCOUNT_NUMBER }}.dkr.ecr.${{ vars.AWS_ECR_REGION }}.amazonaws.com
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -26,11 +28,11 @@ jobs:
       - name: Login to ECR
         uses: docker/login-action@v3
         with:
-            registry: ${{ vars.AWS_ACCOUNT_NUMBER }}.dkr.ecr.${{ vars.AWS_ECR_REGION }}.amazonaws.com
+            registry: ${{ env.REGISTRY }}
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/qcl:LATEST
+          tags: ${{ env.REGISTRY }}/qcl:LATEST
           platforms: linux/arm64
