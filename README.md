@@ -111,7 +111,7 @@ While you can run the web app and database locally, some components don't curren
 1. Run `git update-index --skip-worktree .devcontainer/devcontainer.env`
     - This will prevent your environment variables from being included in commits
 1. Place the environment variables in [this template](.devcontainer/devcontainer.env)
-1. In VS Code, click F1
+1. In VS Code, press F1
 1. Enter command `>dev containers: open folder in container`
     - select the project root folder
     - this will build and start the image
