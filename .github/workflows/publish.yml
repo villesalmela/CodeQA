@@ -6,7 +6,7 @@ on:
     paths:
       - app/**
       - .dockerignore
-      - .Dockerfile
+      - Dockerfile
 jobs:
   publish:
     runs-on: ubuntu-latest
