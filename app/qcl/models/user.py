@@ -1,22 +1,38 @@
 from qcl.utils import dbrunner, auth
 from werkzeug.security import check_password_hash, generate_password_hash
-import time
-from flask import request
-from qcl.utils import log
+
+from qcl.utils import log, general, dbrunner
 from email_validator import validate_email
 from qcl.integrations import email
 import logging
 logging.basicConfig(level=logging.INFO)
 
-MINUTES_15 = 60 * 15
-def get_current_time() -> int:
-    return int(time.time())
 
-def get_remote_ip():
-    if "X-Forwarded-For" in request.headers:
-        return request.headers["X-Forwarded-For"]
-    else:
-        return request.remote_addr
+def new_users_count_total() -> int:
+    "Return the number of new user accounts created within last 24 hours."
+
+    time_filter = general.get_time_hours_ago(24)
+    query = "SELECT COUNT(*) FROM account_events WHERE event_type='create' AND event_time > :time_filter"
+    params = {"time_filter": time_filter}
+    success, result = dbrunner.execute(query, params)
+    if not success:
+        raise RuntimeError(result)
+    count = result.first()[0]
+    assert isinstance(count, int)
+    return count
+
+def new_users_count_ip(remote_ip: str) -> int:
+    "Return the number of new user accounts created from this remote IP, within last 24 hours."
+
+    time_filter = general.get_time_hours_ago(24)
+    query = "SELECT COUNT(*) FROM account_events WHERE event_type='create' AND remote_ip=:remote_ip AND event_time > :time_filter"
+    params = {"time_filter": time_filter, "remote_ip": remote_ip}
+    success, result = dbrunner.execute(query, params)
+    if not success:
+        raise RuntimeError(result)
+    count = result.first()[0]
+    assert isinstance(count, int)
+    return count
 
 class User:
 
@@ -27,11 +43,12 @@ class User:
 
         if password: # new user
 
-            new_users_total = dbrunner.new_users_count_total()
+            # Rate limiting, to prevent email spamming
+            new_users_total = new_users_count_total()
             if new_users_total >= 5:
                 raise RuntimeError("Refused to create more than 5 users in a day")
             
-            new_users_ip = dbrunner.new_users_count_ip(get_remote_ip())
+            new_users_ip = new_users_count_ip(general.get_remote_ip())
             if new_users_ip >= 2:
                 raise RuntimeError("Refused to create more than 2 users in a day from single IP")
 
@@ -44,11 +61,11 @@ class User:
             params = {"username": username, "password": password_hash, "verification_code": verification_code_hash}
             success, _ = dbrunner.execute(query, params)
             if not success:
-                log.account_creation(user_id=None, success=False, remote_ip=get_remote_ip(), reason="Insertion failed.")
+                log.account_creation(user_id=None, success=False, remote_ip=general.get_remote_ip(), reason="Insertion failed.")
                 raise RuntimeError("User creation failed")
             send_success = email.send_verification_code(receiver=username, code=verification_code)
             if not send_success:
-                log.account_creation(user_id=None, success=False, remote_ip=get_remote_ip(), reason="Verification code sending failed")
+                log.account_creation(user_id=None, success=False, remote_ip=general.get_remote_ip(), reason="Verification code sending failed")
                 raise RuntimeError("Verification code sending failed")
             # TODO: remove failed account from db
         query = "SELECT uid, password, verification_code, admin, verified, disabled, locked, created FROM users WHERE username=:username"
@@ -58,12 +75,12 @@ class User:
             raise RuntimeError("Failed to read user")
         row = result.first()
         if row is None:
-            log.login(None, False, get_remote_ip(), "Account does not exist")
+            log.login(None, False, general.get_remote_ip(), "Account does not exist")
             raise ValueError("User does not exist")
         self.id = row.uid
 
         if new_user:
-            log.account_creation(user_id=self.id, success=True, remote_ip=get_remote_ip())
+            log.account_creation(user_id=self.id, success=True, remote_ip=general.get_remote_ip())
 
         self.name = username
         self.password_hash = row.password
@@ -72,13 +89,13 @@ class User:
         self.disabled = row.disabled
         self.verified = row.verified
         self.created = row.created
-        self.locked = True if row.locked and row.locked > get_current_time() - MINUTES_15 else False
+        self.locked = True if row.locked and row.locked > general.get_time_minutes_ago(15) else False
 
     def check_password(self, password: str):
         return check_password_hash(self.password_hash, password)
     
     def check_verification_code(self, verification_code: str):
-        remote_ip = get_remote_ip()
+        remote_ip = general.get_remote_ip()
         verification_code = verification_code.replace(" ", "").replace("-", "")
         valid = check_password_hash(self.verification_code_hash, verification_code)
         if valid:
@@ -113,7 +130,7 @@ class User:
                 reason = "Invalid credentials"
         
         log_status = status is True
-        remote_ip = get_remote_ip()
+        remote_ip = general.get_remote_ip()
         
         log.login(self.id, log_status, remote_ip, reason)
         return status
