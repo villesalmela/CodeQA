@@ -122,12 +122,13 @@ While you can run the web app and database locally, some components don't curren
     - Give it one subnet, and no access to other networks
 1. Create a new [AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/getting-started.html) function
     - *ENV: PYTEST_REGION*
+    - Attach the lambda function to the newly created VPC
     - Modify the automatically created [execution role](https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html), which the lambda function will assume
         - Set the role to have one policy, [AWSDenyALL](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AWSDenyAll.html). \
         This will limit any damage that can occur if malicious user manages to escape isolation. 
     - Upload the [code for the lambda function](aws/lambda/lambda_function.py)
     - Create a [resource based policy](https://docs.aws.amazon.com/lambda/latest/dg/access-control-resource-based.html) that allows invoking this lambda function
-    - Create an user, and assing it the policy you just created
+    - Create a user, and assign it the policy you just created
         - [Setup an access key](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html)
         - *ENV: PYTEST_KEY_ID, PYTEST_KEY_SECRET*
 1. Setup [OpenAI API](https://platform.openai.com/docs/introduction) key
