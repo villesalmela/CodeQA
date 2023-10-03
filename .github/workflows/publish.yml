@@ -35,4 +35,4 @@ jobs:
           context: .
           push: true
           tags: ${{ env.REGISTRY }}/qcl:LATEST
-          platforms: linux/arm64
+          platforms: linux/amd64
