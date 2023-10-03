@@ -1,4 +1,4 @@
-FROM python:latest
+FROM python:3.11
 WORKDIR /app
 COPY app/requirements.txt /app/
 RUN python -m pip install --upgrade pip
