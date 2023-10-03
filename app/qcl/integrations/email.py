@@ -7,6 +7,7 @@ logging.basicConfig(level=logging.INFO)
 
 api_key = os.environ.get('MJ_APIKEY_PUBLIC')
 api_secret = os.environ.get('MJ_APIKEY_SECRET')
+template_id = os.environ.get('MJ_TEMPLATE_ID')
 mailjet = Client(auth=(api_key, api_secret), version='v3.1')
 
 def send_verification_code(receiver: str, code: str) -> bool:
@@ -19,7 +20,7 @@ def send_verification_code(receiver: str, code: str) -> bool:
                         "Email": receiver
                     }
                 ],
-                "TemplateID": 5104296,
+                "TemplateID": template_id,
                 "TemplateLanguage": True,
                 "Variables": {
                     "VERIFICATION_CODE": code

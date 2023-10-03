@@ -3,13 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 
 import os
 
-# if not running in production, load env variables from file
-if os.environ.get("ENVIRONMENT") == "production":
-    pass
-else:
-    from dotenv import load_dotenv
-    load_dotenv()
-
 # config needs env variables
 from qcl.config import Config
 

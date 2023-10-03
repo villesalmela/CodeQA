@@ -2,13 +2,6 @@ import os
 import psycopg2
 from pathlib import Path
 
-# if not running in production, load env variables from file
-if os.environ.get("ENVIRONMENT") == "production":
-    pass
-else:
-    from dotenv import load_dotenv
-    load_dotenv()
-
 import logging
 logging.basicConfig(level=logging.INFO)
 

@@ -28,6 +28,53 @@ The application supports users in documentation and quality control of their fun
 - Administrators can manage users and saved functions
 - Users can remove their own saved functions
 
+## Database Schema
+### Users
+| name              | type    | default                                 | constraints     | references | description                             |
+|-------------------|---------|-----------------------------------------|-----------------|------------|-----------------------------------------|
+| uid               | UUID    | gen_random_uuid()                       | PRIMARY KEY     |            | unique identifier for all users         |
+| username          | TEXT    |                                         | UNIQUE NOT NULL |            | username in plain text                  |
+| password          | TEXT    |                                         | NOT NULL        |            | hashed password                         |
+| verification_code | TEXT    |                                         | NOT NULL        |            | hashed verification code                |
+| admin             | BOOLEAN | FALSE                                   |                 |            | flag is true if user is administrator   |
+| verified          | BOOLEAN | FALSE                                   |                 |            | flag is true if user has verified email |
+| disabled          | BOOLEAN | FALSE                                   |                 |            | flag is true if user is disabled        |
+| created           | INT     | EXTRACT(EPOCH  FROM  CURRENT_TIMESTAMP) |                 |            | timestamp of creation, in unix format   |
+| locked            | INT     |                                         |                 |            | timestamp of locking, in unix format    |
+
+### Auth_events
+| name       | type    | default                               | constraints | references | description                                                     |
+|------------|---------|---------------------------------------|-------------|------------|-----------------------------------------------------------------|
+| event_id   | SERIAL  |                                       | PRIMARY KEY |            | unique id for each event                                        |
+| uid        | UUID    |                                       |             | users(uid) | user related to this event                                      |
+| event_time | INT     | EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) |             |            | timestamp of action, in unix format                             |
+| event_type | TEXT    |                                       | NOT NULL    |            | either 'login' or 'verification'                                |
+| success    | BOOLEAN |                                       | NOT NULL    |            | flag is true if authentication was successful                   |
+| remote_ip  | TEXT    |                                       | NOT NULL    |            | remote IP address from which the authentication originated from |
+| reason     | TEXT    |                                       |             |            | description of why action failed                                |
+
+### Account_events
+| name       | type    | default                               | constraints | references | description                                             |
+|------------|---------|---------------------------------------|-------------|------------|---------------------------------------------------------|
+| event_id   | SERIAL  |                                       | PRIMARY KEY |            | unique id for each event                                |
+| uid        | UUID    |                                       |             | users(uid) | user related to this event                              |
+| event_time | INT     | EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) |             |            | timestamp of action, in unix format                     |
+| event_type | TEXT    |                                       | NOT NULL    |            | always 'create'                                         |
+| success    | BOOLEAN |                                       | NOT NULL    |            | flag is true if action was successful                   |
+| remote_ip  | TEXT    |                                       | NOT NULL    |            | remote IP address from which the action originated from |
+| reason     | TEXT    |                                       |             |            | description of why action failed                        |
+
+### Functions
+| name        | type   | default | constraints | references | description                        |
+|-------------|--------|---------|-------------|------------|------------------------------------|
+| function_id | SERIAL |         | PRIMARY KEY |            | unique id for each function        |
+| uid         | UUID   |         | NOT NULL    | users(uid) | user who created to this function  |
+| name        | TEXT   |         | NOT NULL    |            | name of the function               |
+| code        | TEXT   |         | NOT NULL    |            | source code of the function        |
+| tests       | TEXT   |         | NOT NULL    |            | source code of the unit tests      |
+| usecase     | TEXT   |         | NOT NULL    |            | description of function's use case |
+| keywords    | TEXT   |         | NOT NULL    |            | comma separated list of keywords   |
+
 ## Status
 ### Operational functionalities
 - Users can create new accounts using their email as username
@@ -56,7 +103,6 @@ Test account is available:
 - username: testuser@villesalmela.fi
 - password: password
 
-
 One test function was saved to the library using this input:
 ```python
 def celsius_to_fahrenheit(celsius):
@@ -64,3 +110,41 @@ def celsius_to_fahrenheit(celsius):
     return fahrenheit
 ```
 Feel free to try the process with that one, or come up with something else.
+
+### Local Testing
+While you can run the web app and database locally, some components don't currently have local options.
+1. Install [Docker Engine](https://docs.docker.com/engine/install/)
+1. Install [Visual Studio Code](https://code.visualstudio.com)
+1. Install [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+1. Setup a PostgreSQL server
+    - *ENV: DB_HOST, DB_PORT, DB_PASSWORD, DB_USER, DB_NAME*
+1. Create a new [AWS VPC](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-getting-started.html), which will be used to isolate the lambda function
+    - Give it one subnet, and no access to other networks
+1. Create a new [AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/getting-started.html) function
+    - *ENV: PYTEST_REGION*
+    - Modify the automatically created [execution role](https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html), which the lambda function will assume
+        - Set the role to have one policy, [AWSDenyALL](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AWSDenyAll.html). \
+        This will limit any damage that can occur if malicious user manages to escape isolation. 
+    - Upload the [code for the lambda function](aws/lambda/lambda_function.py)
+    - Create a [resource based policy](https://docs.aws.amazon.com/lambda/latest/dg/access-control-resource-based.html) that allows invoking this lambda function
+    - Create an user, and assing it the policy you just created
+        - [Setup an access key](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html)
+        - *ENV: PYTEST_KEY_ID, PYTEST_KEY_SECRET*
+1. Setup [OpenAI API](https://platform.openai.com/docs/introduction) key
+    - *ENV: OPENAI_API_KEY*
+1. Setup [Mailjet](mailjet.com) account
+    - *ENV: MJ_APIKEY_PUBLIC, MJ_APIKEY_SECRET*
+    - [create a template for transactional email](https://documentation.mailjet.com/hc/en-us/articles/360042952713-Mailjet-s-Email-Editor-for-Transactional-Emails)
+        - *ENV: MJ_TEMPLATE_ID*
+    - the template must:
+        - accept one variable: "VERIFICATION_CODE"
+        - include default subject and sender
+1. Clone this project to your workstation
+1. Change directory to project root
+1. Run `git update-index --skip-worktree .devcontainer/devcontainer.env`
+    - This will prevent your environment variables from being included in commits
+1. Place the environment variables in [this template](.devcontainer/devcontainer.env)
+1. In VS Code, press F1
+1. Enter command `>dev containers: open folder in container`
+    - select the project root folder
+    - this will build and start the image, and make the app available at http://localhost:8000
