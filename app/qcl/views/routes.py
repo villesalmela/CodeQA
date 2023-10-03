@@ -8,7 +8,6 @@ import traceback
 import json
 
 from flask import render_template, request, session, redirect, url_for
-from flask_api import status
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length
@@ -41,15 +40,14 @@ def needs_admin(func):
 
 @app.route("/unauthorized")
 def unauthorized():
-    return render_template("unauthorized.html"), status.HTTP_401_UNAUTHORIZED
+    return render_template("unauthorized.html"), 401
 
 @app.route("/badrequest")
 def badrequest():
-    return render_template("badrequest.html"), status.HTTP_400_BAD_REQUEST
-
+    return render_template("badrequest.html"), 400
 @app.route("/forbidden")
 def forbidden():
-    return render_template("forbidden.html"), status.HTTP_403_FORBIDDEN
+    return render_template("forbidden.html"), 403
 
 class SignupForm(FlaskForm):
     username = StringField('Username', validators=[
@@ -378,6 +376,6 @@ def register():
         except:
             logging.info("new user fail")
             logging.error(traceback.format_exc())
-            return "Something went wrong, registration failed.", status.HTTP_500_INTERNAL_SERVER_ERROR
+            return "Something went wrong, registration failed.", 500
 
     return render_template("register.html", form=form)
