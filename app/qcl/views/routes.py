@@ -1,7 +1,8 @@
 from qcl import app
-from qcl.utils import dbrunner, code_format, fileops, validate
+from qcl.utils import code_format, fileops, validate
 from qcl.integrations import gpt, linter, testrunner
 from qcl.models.user import User
+from qcl.models import function
 
 from functools import wraps
 import traceback
@@ -270,7 +271,7 @@ def save_new_function():
     usecase = session["function_usecase"]
     uid = session["user_id"]
 
-    save_success, function_id = dbrunner.save_function(code, tests, keywords, usecase, name, uid)
+    save_success, function_id = function.save_function(code, tests, keywords, usecase, name, uid)
     if not save_success:
         raise RuntimeError("Function save failed")
 
@@ -283,7 +284,7 @@ def save_new_function():
 @app.route("/functions/<function_id>")
 @needs_user
 def view_function(function_id):
-    fdata = dbrunner.get_function(int(function_id))
+    fdata = function.get_function(int(function_id))
     fdata["code"] = code_format.format(fdata["code"])
     fdata["tests"] = code_format.format(fdata["tests"])
     fdata["keywords"] = [x.strip() for x in fdata["keywords"].split(",")]
@@ -292,7 +293,7 @@ def view_function(function_id):
 @app.route("/functions")
 @needs_user
 def list_functions():
-    fdata = dbrunner.list_functions()
+    fdata = function.list_functions()
     return render_template("functions.html", fdata=fdata)
 
 @app.route("/login",methods=["GET", "POST"])
