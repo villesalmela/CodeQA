@@ -80,7 +80,9 @@ Feel free to try the process with that one, or come up with something else.
 
 ### Local Testing
 While you can run the web app and database locally, some components don't currently have local options.
-1. Install docker and docker-compose to your workstation
+1. Install [Docker Engine](https://docs.docker.com/engine/install/)
+1. Install [Visual Studio Code](https://code.visualstudio.com)
+1. Install [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 1. Setup a PostgreSQL server
     - *ENV: DB_HOST, DB_PORT, DB_PASSWORD, DB_USER, DB_NAME*
 1. Create a new [AWS VPC](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-getting-started.html), which will be used to isolate the lambda function
@@ -95,7 +97,6 @@ While you can run the web app and database locally, some components don't curren
     - Create an user, and assing it the policy you just created
         - [Setup an access key](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html)
         - *ENV: PYTEST_KEY_ID, PYTEST_KEY_SECRET*
-
 1. Setup [OpenAI API](https://platform.openai.com/docs/introduction) key
     - *ENV: OPENAI_API_KEY*
 1. Setup [Mailjet](mailjet.com) account
@@ -105,8 +106,12 @@ While you can run the web app and database locally, some components don't curren
     - the template must:
         - accept one variable: "VERIFICATION_CODE"
         - include default subject and sender
-1. Place the environment variables in [this template](app/.env)
-1. In project's root folder, run "docker-compose up"
-    - this will build and start the image, and make the app available at http://localhost:5001
-
-
+1. Clone this project to your workstation
+1. Change directory to project root
+1. Run `git update-index --skip-worktree .devcontainer/devcontainer.env`
+    - This will prevent your environment variables from being included in commits
+1. Place the environment variables in [this template](.devcontainer/devcontainer.env)
+1. In VS Code, click F1
+1. Enter command `>dev containers: open folder in container`
+    - select the project root folder
+    - this will build and start the image
