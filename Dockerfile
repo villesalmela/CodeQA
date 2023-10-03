@@ -1,8 +1,8 @@
 FROM python:3.11
 WORKDIR /app
-COPY app/requirements.txt /app/
+COPY app/requirements-lock.txt /app/
 RUN python -m pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install -r requirements-lock.txt
 COPY app /app
 RUN chmod +x /app/entrypoint.sh
 ARG PORT=8000
