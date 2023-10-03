@@ -10,5 +10,4 @@ openai
 psycopg2
 pygments
 pylint
-python-dotenv
 requests
