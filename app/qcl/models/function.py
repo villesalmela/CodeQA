@@ -17,7 +17,7 @@ def save_function(code: str, tests: str, keywords: str, usecase: str, name: str,
         
 
 def get_function(function_id: int):
-    query = "SELECT f.name as name, f.code as code, f.tests as tests, f.usecase as usecase, f.keywords as keywords, u.username as username \
+    query = "SELECT f.uid as uid, f.name as name, f.code as code, f.tests as tests, f.usecase as usecase, f.keywords as keywords, u.username as username \
         FROM functions AS f \
         JOIN users AS u ON f.uid = u.uid \
         WHERE f.function_id = :function_id;"
@@ -28,7 +28,7 @@ def get_function(function_id: int):
     row = result.first()
     if row is None:
         raise ValueError("Function not found")
-    return {"name": row.name, "code": row.code, "tests": row.tests, "usecase": row.usecase, "keywords": row.keywords, "username": row.username}
+    return {"name": row.name, "code": row.code, "tests": row.tests, "usecase": row.usecase, "keywords": row.keywords, "username": row.username, "uid": row.uid}
 
 def list_functions():
     query = "SELECT f.function_id, f.name as name, f.usecase as usecase, f.keywords as keywords, u.username as username \

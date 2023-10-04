@@ -210,6 +210,7 @@ def save_new_function():
 @needs_user
 def view_function(function_id):
     fdata = function.get_function(int(function_id))
+    del fdata["uid"]
     fdata["code"] = code_format.format(fdata["code"])
     fdata["tests"] = code_format.format(fdata["tests"])
     fdata["keywords"] = [x.strip() for x in fdata["keywords"].split(",")]
