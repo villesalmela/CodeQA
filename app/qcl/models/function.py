@@ -1,4 +1,5 @@
 from qcl.utils import dbrunner
+from flask import session
 
 def save_function(code: str, tests: str, keywords: str, usecase: str, name: str, uid: str) -> tuple[bool, str]:
     query = "INSERT INTO functions (code, tests, keywords, usecase, name, uid) \
@@ -38,3 +39,9 @@ def list_functions():
     if not success:
         raise RuntimeError("Function fetch failed")
     return result.all()
+
+def delete_function(function_id: int):
+    query = "DELETE FROM functions WHERE function_id = :function_id;"
+    params = {"function_id": function_id}
+    success, _ = dbrunner.execute(query, params)
+    return success
