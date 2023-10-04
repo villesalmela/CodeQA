@@ -179,6 +179,19 @@ def classify():
             else: # data not ok
                 return render_template("classify.html", form=form)
 
+
+@app.route("/delete_function/<int:function_id>", methods=["POST"])
+@needs_user
+def delete_function(function_id: int):
+    function_data = function.get_function(function_id)
+    fuid = function_data["uid"]
+    user_id = session["user_id"]
+    user_role = session["user_role"]
+    if fuid == user_id or user_role == "admin":
+        function.delete_function(function_id)
+        return redirect(url_for("list_functions"))
+    else:
+        return redirect(url_for("forbidden"))
     
 @app.route("/save_new_function")
 @needs_user
