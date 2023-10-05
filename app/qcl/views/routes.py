@@ -184,7 +184,7 @@ def classify():
 @needs_user
 def delete_function(function_id: int):
     function_data = function.get_function(function_id)
-    fuid = function_data["uid"]
+    fuid = function_data["user_id"]
     user_id = session["user_id"]
     user_role = session["user_role"]
     if fuid == user_id or user_role == "admin":
@@ -207,9 +207,9 @@ def save_new_function():
     keywords = session["function_keywords"]
     name = session["function_name"]
     usecase = session["function_usecase"]
-    uid = session["user_id"]
+    user_id = session["user_id"]
 
-    save_success, function_id = function.save_function(code, tests, keywords, usecase, name, uid)
+    save_success, function_id = function.save_function(code, tests, keywords, usecase, name, user_id)
     if not save_success:
         raise RuntimeError("Function save failed")
 
@@ -223,7 +223,7 @@ def save_new_function():
 @needs_user
 def view_function(function_id):
     fdata = function.get_function(function_id)
-    del fdata["uid"]
+    del fdata["user_id"]
     fdata["code"] = code_format.format(fdata["code"])
     fdata["tests"] = code_format.format(fdata["tests"])
     fdata["keywords"] = [x.strip() for x in fdata["keywords"].split(",")]

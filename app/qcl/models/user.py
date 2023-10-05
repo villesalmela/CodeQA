@@ -53,7 +53,7 @@ class User:
         password_hash = generate_password_hash(password)
         verification_code = auth.get_verification_code()
         verification_code_hash = generate_password_hash(verification_code)
-        query = "INSERT INTO users (username, password, verification_code) VALUES (:username, :password, :verification_code) RETURNING uid"
+        query = "INSERT INTO users (username, password, verification_code) VALUES (:username, :password, :verification_code) RETURNING user_id"
         params = {"username": username, "password": password_hash, "verification_code": verification_code_hash}
         success, result = dbrunner.execute(query, params)
 
@@ -67,22 +67,22 @@ class User:
             # TODO: remove failed account from db
 
         row = result.first()
-        uid = row.uid
-        log.account_creation(user_id=uid, success=True, remote_ip=general.get_remote_ip())
-        return uid
+        user_id = row.user_id
+        log.account_creation(user_id=user_id, success=True, remote_ip=general.get_remote_ip())
+        return user_id
 
 
 
-    def __init__(self, username=None, password=None, uid=None) -> None:
+    def __init__(self, username=None, password=None, user_id=None) -> None:
         need_credential_check = False
         need_session_check = False
         if username and password:
-            query = "SELECT uid, password, verification_code, admin, verified, disabled, locked, created FROM users WHERE username=:username"
+            query = "SELECT user_id, password, verification_code, admin, verified, disabled, locked, created FROM users WHERE username=:username"
             params = {"username": username}
             need_credential_check = True
-        elif uid:
-            query = "SELECT uid, password, verification_code, admin, verified, disabled, locked, created FROM users WHERE uid=:uid"
-            params = {"uid": uid}
+        elif user_id:
+            query = "SELECT user_id, password, verification_code, admin, verified, disabled, locked, created FROM users WHERE user_id=:user_id"
+            params = {"user_id": user_id}
             need_session_check = True
         else:
             raise ValueError("Invalid parameters")
@@ -93,7 +93,7 @@ class User:
         if row is None:
             log.login(None, False, general.get_remote_ip(), "Account does not exist")
             raise ValueError("User does not exist")
-        self.id = row.uid
+        self.id = row.user_id
         self.name = username
         self.password_hash = row.password
         self.verification_code_hash = row.verification_code
@@ -115,7 +115,7 @@ class User:
         valid = check_password_hash(self.verification_code_hash, verification_code)
         if valid:
             log.verification(self.id, True, remote_ip)
-            query = "UPDATE users SET verified=true WHERE uid=:user_id"
+            query = "UPDATE users SET verified=true WHERE user_id=:user_id"
             params = {"user_id": self.id}
             success, _ = dbrunner.execute(query, params)
             if not success:
