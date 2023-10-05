@@ -39,3 +39,10 @@ CREATE TABLE IF NOT EXISTS functions (
     usecase TEXT NOT NULL,
     keywords TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS sessions (
+    session_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    uid UUID REFERENCES users(uid) NOT NULL,
+    created INT DEFAULT EXTRACT(EPOCH FROM CURRENT_TIMESTAMP),
+    data BYTEA CHECK (LENGTH(data) < 100000)
+)
