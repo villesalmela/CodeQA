@@ -24,17 +24,14 @@ class PSQLSession:
         flask.g.psql_session = compress.decompress(data)
         flask.g.psql_session_modified = False
 
-    @staticmethod
-    def __setitem__(key, value):
+    def __setitem__(self, key, value):
         flask.g.psql_session[key] = value
         flask.g.psql_session_modified = True
 
-    @staticmethod
-    def __getitem__(key):
+    def __getitem__(self, key):
         return flask.g.psql_session[key]
-    
-    @staticmethod
-    def __delitem__(key):
+
+    def __delitem__(self, key):
         del flask.g.psql_session[key]
     
     @staticmethod
@@ -61,3 +58,5 @@ class PSQLSession:
             success, _ = dbrunner.execute(query, params)
             if not success:
                 raise RuntimeError("Failed to write session")
+
+server_session = PSQLSession()
