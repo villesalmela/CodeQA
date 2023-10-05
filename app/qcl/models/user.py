@@ -36,40 +36,56 @@ def new_users_count_ip(remote_ip: str) -> int:
 
 class User:
 
-    def __init__(self, username: str, password: str=None) -> None:
+    @staticmethod
+    def new(username: str, password: str) -> str:
         
         username = validate_email(username, check_deliverability=False).normalized
-        new_user = False
 
-        if password: # new user
+        # Rate limiting, to prevent email spamming
+        new_users_total = new_users_count_total()
+        if new_users_total >= 5:
+            raise RuntimeError("Refused to create more than 5 users in a day")
+        
+        new_users_ip = new_users_count_ip(general.get_remote_ip())
+        if new_users_ip >= 2:
+            raise RuntimeError("Refused to create more than 2 users in a day from single IP")
 
-            # Rate limiting, to prevent email spamming
-            new_users_total = new_users_count_total()
-            if new_users_total >= 5:
-                raise RuntimeError("Refused to create more than 5 users in a day")
-            
-            new_users_ip = new_users_count_ip(general.get_remote_ip())
-            if new_users_ip >= 2:
-                raise RuntimeError("Refused to create more than 2 users in a day from single IP")
+        password_hash = generate_password_hash(password)
+        verification_code = auth.get_verification_code()
+        verification_code_hash = generate_password_hash(verification_code)
+        query = "INSERT INTO users (username, password, verification_code) VALUES (:username, :password, :verification_code) RETURNING uid"
+        params = {"username": username, "password": password_hash, "verification_code": verification_code_hash}
+        success, result = dbrunner.execute(query, params)
 
-            new_user = True
-            password_hash = generate_password_hash(password)
-            verification_code = auth.get_verification_code()
-            logging.info(f"Verification_code: {verification_code}")
-            verification_code_hash = generate_password_hash(verification_code)
-            query = "INSERT INTO users (username, password, verification_code) VALUES (:username, :password, :verification_code)"
-            params = {"username": username, "password": password_hash, "verification_code": verification_code_hash}
-            success, _ = dbrunner.execute(query, params)
-            if not success:
-                log.account_creation(user_id=None, success=False, remote_ip=general.get_remote_ip(), reason="Insertion failed.")
-                raise RuntimeError("User creation failed")
-            send_success = email.send_verification_code(receiver=username, code=verification_code)
-            if not send_success:
-                log.account_creation(user_id=None, success=False, remote_ip=general.get_remote_ip(), reason="Verification code sending failed")
-                raise RuntimeError("Verification code sending failed")
+        if not success:
+            log.account_creation(user_id=None, success=False, remote_ip=general.get_remote_ip(), reason="Insertion failed.")
+            raise RuntimeError("User creation failed")
+        send_success = email.send_verification_code(receiver=username, code=verification_code)
+        if not send_success:
+            log.account_creation(user_id=None, success=False, remote_ip=general.get_remote_ip(), reason="Verification code sending failed")
+            raise RuntimeError("Verification code sending failed")
             # TODO: remove failed account from db
-        query = "SELECT uid, password, verification_code, admin, verified, disabled, locked, created FROM users WHERE username=:username"
-        params = {"username": username}
+
+        row = result.first()
+        uid = row.uid
+        log.account_creation(user_id=uid, success=True, remote_ip=general.get_remote_ip())
+        return uid
+
+
+
+    def __init__(self, username=None, password=None, uid=None) -> None:
+        need_credential_check = False
+        need_session_check = False
+        if username and password:
+            query = "SELECT uid, password, verification_code, admin, verified, disabled, locked, created FROM users WHERE username=:username"
+            params = {"username": username}
+            need_credential_check = True
+        elif uid:
+            query = "SELECT uid, password, verification_code, admin, verified, disabled, locked, created FROM users WHERE uid=:uid"
+            params = {"uid": uid}
+            need_session_check = True
+        else:
+            raise ValueError("Invalid parameters")
         success, result = dbrunner.execute(query, params)
         if not success:
             raise RuntimeError("Failed to read user")
@@ -78,10 +94,6 @@ class User:
             log.login(None, False, general.get_remote_ip(), "Account does not exist")
             raise ValueError("User does not exist")
         self.id = row.uid
-
-        if new_user:
-            log.account_creation(user_id=self.id, success=True, remote_ip=general.get_remote_ip())
-
         self.name = username
         self.password_hash = row.password
         self.verification_code_hash = row.verification_code
@@ -91,8 +103,11 @@ class User:
         self.created = row.created
         self.locked = True if row.locked and row.locked > general.get_time_minutes_ago(15) else False
 
-    def check_password(self, password: str):
-        return check_password_hash(self.password_hash, password)
+        if need_credential_check:
+            credentials_valid = check_password_hash(self.password_hash, password)
+
+        if need_session_check:
+            
     
     def check_verification_code(self, verification_code: str):
         remote_ip = general.get_remote_ip()
