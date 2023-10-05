@@ -25,13 +25,17 @@ class PSQLSession:
         flask.g.psql_session_modified = False
 
     @staticmethod
-    def write(key, value):
+    def __setitem__(key, value):
         flask.g.psql_session[key] = value
         flask.g.psql_session_modified = True
 
     @staticmethod
-    def read(key):
+    def __getitem__(key):
         return flask.g.psql_session[key]
+    
+    @staticmethod
+    def __delitem__(key):
+        del flask.g.psql_session[key]
     
     @staticmethod
     def new(user_id: str, data: dict) -> str:
