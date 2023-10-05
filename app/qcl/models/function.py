@@ -3,13 +3,8 @@ from flask import session
 
 def save_function(code: str, tests: str, keywords: str, usecase: str, name: str, user_id: str) -> tuple[bool, str]:
     query = "INSERT INTO functions (code, tests, keywords, usecase, name, user_id) \
-        VALUES (:code, :tests, :keywords, :usecase, :name, :user_id)"
+        VALUES (:code, :tests, :keywords, :usecase, :name, :user_id) RETURNING function_id"
     params = {"code": code, "tests": tests, "keywords": keywords, "usecase": usecase, "name": name, "user_id": user_id}
-    success, _ = dbrunner.execute(query, params)
-    if not success:
-        return False, ""
-    query = "SELECT function_id FROM functions WHERE name=:name"
-    params = {"name": name}
     success, result = dbrunner.execute(query, params)
     if not success:
         return False, ""
