@@ -33,6 +33,9 @@ class PSQLSession:
 
     def __delitem__(self, key):
         del flask.g.psql_session[key]
+
+    def __contains__(self, key):
+        return key in flask.g.psql_session
     
     @staticmethod
     def new(user_id: str, data: dict) -> str:
