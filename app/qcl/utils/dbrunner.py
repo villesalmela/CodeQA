@@ -2,7 +2,6 @@ from qcl import app, db
 from sqlalchemy.sql import text
 from sqlalchemy.engine import Result
 import traceback
-import time
 import logging
 logging.basicConfig(level=logging.INFO)
 
