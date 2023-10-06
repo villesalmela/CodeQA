@@ -1,5 +1,5 @@
 from qcl.utils import dbrunner, general, serialize
-from flask import redirect, url_for, g
+from flask import g
 
 SESSION_MAX_LIFETIME = 3600
 
