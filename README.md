@@ -32,7 +32,7 @@ The application supports users in documentation and quality control of their fun
 ### Users
 | name              | type    | default                                 | constraints     | references | description                             |
 |-------------------|---------|-----------------------------------------|-----------------|------------|-----------------------------------------|
-| user_id               | UUID    | gen_random_uuid()                       | PRIMARY KEY     |            | unique identifier for all users         |
+| user_id           | UUID    | gen_random_uuid()                       | PRIMARY KEY     |            | unique identifier for all users         |
 | username          | TEXT    |                                         | UNIQUE NOT NULL |            | username in plain text                  |
 | password          | TEXT    |                                         | NOT NULL        |            | hashed password                         |
 | verification_code | TEXT    |                                         | NOT NULL        |            | hashed verification code                |
@@ -43,37 +43,60 @@ The application supports users in documentation and quality control of their fun
 | locked            | INT     |                                         |                 |            | timestamp of locking, in unix format    |
 
 ### Auth_events
-| name       | type    | default                               | constraints | references | description                                                     |
-|------------|---------|---------------------------------------|-------------|------------|-----------------------------------------------------------------|
-| event_id   | SERIAL  |                                       | PRIMARY KEY |            | unique id for each event                                        |
-| user_id        | UUID    |                                       |             | users(user_id) | user related to this event                                      |
-| event_time | INT     | EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) |             |            | timestamp of action, in unix format                             |
-| event_type | TEXT    |                                       | NOT NULL    |            | either 'login' or 'verification'                                |
-| success    | BOOLEAN |                                       | NOT NULL    |            | flag is true if authentication was successful                   |
-| remote_ip  | TEXT    |                                       | NOT NULL    |            | remote IP address from which the authentication originated from |
-| reason     | TEXT    |                                       |             |            | description of why action failed                                |
+| name       | type    | default                               | constraints | references     | description                                                     |
+|------------|---------|---------------------------------------|-------------|----------------|-----------------------------------------------------------------|
+| event_id   | SERIAL  |                                       | PRIMARY KEY |                | unique id for each event                                        |
+| user_id    | UUID    |                                       |             | users(user_id) | user related to this event                                      |
+| event_time | INT     | EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) |             |                | timestamp of action, in unix format                             |
+| event_type | TEXT    |                                       | NOT NULL    |                | either 'login' or 'verification'                                |
+| success    | BOOLEAN |                                       | NOT NULL    |                | flag is true if authentication was successful                   |
+| remote_ip  | TEXT    |                                       | NOT NULL    |                | remote IP address from which the authentication originated from |
+| reason     | TEXT    |                                       |             |                | description of why action failed                                |
 
 ### Account_events
-| name       | type    | default                               | constraints | references | description                                             |
-|------------|---------|---------------------------------------|-------------|------------|---------------------------------------------------------|
-| event_id   | SERIAL  |                                       | PRIMARY KEY |            | unique id for each event                                |
-| user_id        | UUID    |                                       |             | users(user_id) | user related to this event                              |
-| event_time | INT     | EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) |             |            | timestamp of action, in unix format                     |
-| event_type | TEXT    |                                       | NOT NULL    |            | always 'create'                                         |
-| success    | BOOLEAN |                                       | NOT NULL    |            | flag is true if action was successful                   |
-| remote_ip  | TEXT    |                                       | NOT NULL    |            | remote IP address from which the action originated from |
-| reason     | TEXT    |                                       |             |            | description of why action failed                        |
+| name       | type    | default                               | constraints | references     | description                                             |
+|------------|---------|---------------------------------------|-------------|----------------|---------------------------------------------------------|
+| event_id   | SERIAL  |                                       | PRIMARY KEY |                | unique id for each event                                |
+| user_id    | UUID    |                                       |             | users(user_id) | user related to this event                              |
+| event_time | INT     | EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) |             |                | timestamp of action, in unix format                     |
+| event_type | TEXT    |                                       | NOT NULL    |                | always 'create'                                         |
+| success    | BOOLEAN |                                       | NOT NULL    |                | flag is true if action was successful                   |
+| remote_ip  | TEXT    |                                       | NOT NULL    |                | remote IP address from which the action originated from |
+| reason     | TEXT    |                                       |             |                | description of why action failed                        |
 
 ### Functions
-| name        | type   | default | constraints | references | description                        |
-|-------------|--------|---------|-------------|------------|------------------------------------|
-| function_id | SERIAL |         | PRIMARY KEY |            | unique id for each function        |
-| user_id         | UUID   |         | NOT NULL    | users(user_id) | user who created to this function  |
-| name        | TEXT   |         | NOT NULL    |            | name of the function               |
-| code        | TEXT   |         | NOT NULL    |            | source code of the function        |
-| tests       | TEXT   |         | NOT NULL    |            | source code of the unit tests      |
-| usecase     | TEXT   |         | NOT NULL    |            | description of function's use case |
-| keywords    | TEXT   |         | NOT NULL    |            | comma separated list of keywords   |
+| name        | type   | default | constraints | references     | description                        |
+|-------------|--------|---------|-------------|----------------|------------------------------------|
+| function_id | SERIAL |         | PRIMARY KEY |                | unique id for each function        |
+| user_id     | UUID   |         | NOT NULL    | users(user_id) | user who created to this function  |
+| name        | TEXT   |         | NOT NULL    |                | name of the function               |
+| code        | TEXT   |         | NOT NULL    |                | source code of the function        |
+| tests       | TEXT   |         | NOT NULL    |                | source code of the unit tests      |
+| usecase     | TEXT   |         | NOT NULL    |                | description of function's use case |
+| keywords    | TEXT   |         | NOT NULL    |                | comma separated list of keywords   |
+
+### Sessions
+| name       | type  | default                               | constraints | references     | description                              |
+|------------|-------|---------------------------------------|-------------|----------------|------------------------------------------|
+| session_id | UUID  | gen_random_uuid()                     | PRIMARY KEY |                | unique id for each session               |
+| user_id    | UUID  |                                       | NOT NULL    | users(user_id) | user who is associated with this session |
+| created    | INT   | EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) |             |                | timestamp of creation, in unix format    |
+| data       | BYTEA |                                       |             |                | session data, LZMA compressed JSON       |
+
+## Security Considerations
+| Weakness                                                                                     | Mitigation                                                                               | Status |
+|----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|--------|
+| CWE-613: Insufficient Session Expiration                                                     | Ensure sessions have expiration time                                                     | Done   |
+| CWE-613: Insufficient Session Expiration                                                     | Ensure sessions are invalidated on logout                                                | Done   |
+| CWE-307: Improper Restriction of Excessive Authentication Attempts                           | Lock out account after certain number of failed authentication attempts                  | Todo   |
+| CWE-307: Improper Restriction of Excessive Authentication Attempts                           | Reject remote IP after certain number of failed authentication attempts                  | Todo   |
+| CWE-384: Session Fixation                                                                    | Generate a new random session_id on server-side for every new session                    | Done   |
+| CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') | Use Flask’s template rendering, which escapes HTML and Javascript. Quote all attributes. | Todo   |
+| CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') | Setup Content Security Policy (CSP)                                                      | Todo   |
+| CWE-352: Cross-Site Request Forgery (CSRF)                                                   | Use CSRF-tokens in POST requests.                                                        | Done   |
+| CWE-352: Cross-Site Request Forgery (CSRF)                                                   | Do not use GET requests for triggering any changes.                                      | Todo   |
+| CWE-89: Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection') | Use parameterization to separate data and code.                                          | Done   |
+| CWE-798: Use of Hard-coded Credentials                                                       | Read all secrets from environment variables.                                             | Done   |
 
 ## Status
 ### Operational functionalities
