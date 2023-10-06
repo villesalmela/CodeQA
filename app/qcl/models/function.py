@@ -1,5 +1,4 @@
 from qcl.utils import dbrunner
-from flask import session
 
 def save_function(code: str, tests: str, keywords: str, usecase: str, name: str, user_id: str) -> tuple[bool, str]:
     query = "INSERT INTO functions (code, tests, keywords, usecase, name, user_id) \
