@@ -83,6 +83,21 @@ The application supports users in documentation and quality control of their fun
 | created    | INT   | EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) |             |                | timestamp of creation, in unix format    |
 | data       | BYTEA |                                       |             |                | session data, LZMA compressed JSON       |
 
+## Security Considerations
+| Weakness                                                                                     | Mitigation                                                                               | Status |
+|----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|--------|
+| CWE-613: Insufficient Session Expiration                                                     | Ensure sessions have expiration time                                                     | Done   |
+| CWE-613: Insufficient Session Expiration                                                     | Ensure sessions are invalidated on logout                                                | Done   |
+| CWE-307: Improper Restriction of Excessive Authentication Attempts                           | Lock out account after certain number of failed authentication attempts                  | Todo   |
+| CWE-307: Improper Restriction of Excessive Authentication Attempts                           | Reject remote IP after certain number of failed authentication attempts                   | Todo   |
+| CWE-384: Session Fixation                                                                    | Generate a new random session_id on server-side for every new session                    | Done   |
+| CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') | Use Flask’s template rendering, which escapes HTML and Javascript. Quote all attributes. | Todo   |
+| CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') | Setup Content Security Policy (CSP)                                                      | Todo   |
+| CWE-352: Cross-Site Request Forgery (CSRF)                                                   | Use CSRF-tokens in POST requests.                                                        | Done   |
+| CWE-352: Cross-Site Request Forgery (CSRF)                                                   | Do not use GET requests for triggering any changes.                                      | Todo   |
+| CWE-89: Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection') | Use parameterization to separate data and code.                                          | Done   |
+| CWE-798: Use of Hard-coded Credentials                                                       | Read all secrets from environment variables.                                             | Done   |
+
 ## Status
 ### Operational functionalities
 - Users can create new accounts using their email as username
