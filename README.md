@@ -32,7 +32,7 @@ The application supports users in documentation and quality control of their fun
 ### Users
 | name              | type    | default                                 | constraints     | references | description                             |
 |-------------------|---------|-----------------------------------------|-----------------|------------|-----------------------------------------|
-| uid               | UUID    | gen_random_uuid()                       | PRIMARY KEY     |            | unique identifier for all users         |
+| user_id               | UUID    | gen_random_uuid()                       | PRIMARY KEY     |            | unique identifier for all users         |
 | username          | TEXT    |                                         | UNIQUE NOT NULL |            | username in plain text                  |
 | password          | TEXT    |                                         | NOT NULL        |            | hashed password                         |
 | verification_code | TEXT    |                                         | NOT NULL        |            | hashed verification code                |
@@ -46,7 +46,7 @@ The application supports users in documentation and quality control of their fun
 | name       | type    | default                               | constraints | references | description                                                     |
 |------------|---------|---------------------------------------|-------------|------------|-----------------------------------------------------------------|
 | event_id   | SERIAL  |                                       | PRIMARY KEY |            | unique id for each event                                        |
-| uid        | UUID    |                                       |             | users(uid) | user related to this event                                      |
+| user_id        | UUID    |                                       |             | users(user_id) | user related to this event                                      |
 | event_time | INT     | EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) |             |            | timestamp of action, in unix format                             |
 | event_type | TEXT    |                                       | NOT NULL    |            | either 'login' or 'verification'                                |
 | success    | BOOLEAN |                                       | NOT NULL    |            | flag is true if authentication was successful                   |
@@ -57,7 +57,7 @@ The application supports users in documentation and quality control of their fun
 | name       | type    | default                               | constraints | references | description                                             |
 |------------|---------|---------------------------------------|-------------|------------|---------------------------------------------------------|
 | event_id   | SERIAL  |                                       | PRIMARY KEY |            | unique id for each event                                |
-| uid        | UUID    |                                       |             | users(uid) | user related to this event                              |
+| user_id        | UUID    |                                       |             | users(user_id) | user related to this event                              |
 | event_time | INT     | EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) |             |            | timestamp of action, in unix format                     |
 | event_type | TEXT    |                                       | NOT NULL    |            | always 'create'                                         |
 | success    | BOOLEAN |                                       | NOT NULL    |            | flag is true if action was successful                   |
@@ -68,7 +68,7 @@ The application supports users in documentation and quality control of their fun
 | name        | type   | default | constraints | references | description                        |
 |-------------|--------|---------|-------------|------------|------------------------------------|
 | function_id | SERIAL |         | PRIMARY KEY |            | unique id for each function        |
-| uid         | UUID   |         | NOT NULL    | users(uid) | user who created to this function  |
+| user_id         | UUID   |         | NOT NULL    | users(user_id) | user who created to this function  |
 | name        | TEXT   |         | NOT NULL    |            | name of the function               |
 | code        | TEXT   |         | NOT NULL    |            | source code of the function        |
 | tests       | TEXT   |         | NOT NULL    |            | source code of the unit tests      |
