@@ -1,4 +1,4 @@
-from qcl.utils import dbrunner, compress, general
+from qcl.utils import dbrunner, general, serialize
 from flask import redirect, url_for, g
 
 SESSION_MAX_LIFETIME = 3600
@@ -21,7 +21,7 @@ class PSQLSession:
         user_id = row.user_id
         if created < general.get_current_time() - SESSION_MAX_LIFETIME:
             raise TimeoutError("Session expired")
-        g.psql_session = compress.decompress(data)
+        g.psql_session = serialize.decompress(data)
         g.psql_session_modified = False
         return user_id
 
@@ -50,7 +50,7 @@ class PSQLSession:
     @staticmethod
     def new(user_id: str, data: dict) -> str:
         query = "INSERT INTO sessions (user_id, data) VALUES (:user_id, :data) RETURNING session_id"
-        data_bytes = compress.compress(data)
+        data_bytes = serialize.compress(data)
         params = {"user_id": user_id, "data": data_bytes}
         success, result = dbrunner.execute(query, params)
         if not success:
@@ -66,7 +66,7 @@ class PSQLSession:
     def save() -> None:
         if g.psql_session_modified:
             query = "UPDATE sessions SET data=:data WHERE session_id=:session_id"
-            data = compress.compress(g.psql_session)
+            data = serialize.compress(g.psql_session)
             params = {"session_id": g.psql_session_id, "data": data}
             success, _ = dbrunner.execute(query, params)
             if not success:
