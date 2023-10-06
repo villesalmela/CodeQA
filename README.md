@@ -75,6 +75,13 @@ The application supports users in documentation and quality control of their fun
 | usecase     | TEXT   |         | NOT NULL    |                | description of function's use case |
 | keywords    | TEXT   |         | NOT NULL    |                | comma separated list of keywords   |
 
+### Sessions
+| name       | type  | default                               | constraints | references     | description                              |
+|------------|-------|---------------------------------------|-------------|----------------|------------------------------------------|
+| session_id | UUID  | gen_random_uuid()                     | PRIMARY KEY |                | unique id for each session               |
+| user_id    | UUID  |                                       | NOT NULL    | users(user_id) | user who is associated with this session |
+| created    | INT   | EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) |             |                | timestamp of creation, in unix format    |
+| data       | BYTEA |                                       |             |                | session data, LZMA compressed JSON       |
 
 ## Status
 ### Operational functionalities
