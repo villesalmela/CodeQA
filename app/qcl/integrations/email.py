@@ -20,7 +20,7 @@ def send_verification_code(receiver: str, code: str) -> bool:
                         "Email": receiver
                     }
                 ],
-                "TemplateID": template_id,
+                "TemplateID": int(template_id),
                 "TemplateLanguage": True,
                 "Variables": {
                     "VERIFICATION_CODE": code
