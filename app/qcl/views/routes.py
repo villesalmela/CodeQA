@@ -125,14 +125,14 @@ def internal_server_error(error):
     return render_template("error_internal_server_error.html.j2", message=error.description), 500
 
 ### HOME PAGE
-@app.route("/")
+@app.route("/", methods=["GET"])
 def index():
     if "session_id" not in client_session:
         return redirect(url_for("login"))
     return render_template("index.html.j2")
 
 ### LOGIN AND REGISTRATION
-@app.route("/login",methods=["GET", "POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
 
     if "session_id" in client_session:
@@ -203,7 +203,7 @@ def verify_email():
             app.logger.debug("not verified")
             return render_template("email_verification.html.j2", form=EmailVerificationForm(), error=True)
 
-@app.route("/logout")
+@app.route("/logout", methods=["GET"])
 def logout():
     if "session_id" in client_session:
         del client_session["session_id"]
@@ -417,7 +417,7 @@ def delete_function(function_id: int):
         app.logger.warning(message)
         abort(403, message)
     
-@app.route("/functions/<int:function_id>")
+@app.route("/functions/<int:function_id>", methods=["GET"])
 @needs_user
 def view_function(function_id):
     try:
@@ -432,7 +432,7 @@ def view_function(function_id):
     fdata["keywords"] = [x.strip() for x in fdata["keywords"].split(",")]
     return render_template("function.html.j2", fdata=fdata)
 
-@app.route("/functions")
+@app.route("/functions", methods=["GET"])
 @needs_user
 def list_functions():
     try:

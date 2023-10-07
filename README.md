@@ -94,7 +94,7 @@ The application supports users in documentation and quality control of their fun
 | CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') | Use Flask’s template rendering, which escapes HTML and Javascript. Quote all attributes. | Todo   |
 | CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') | Setup Content Security Policy (CSP)                                                      | Todo   |
 | CWE-352: Cross-Site Request Forgery (CSRF)                                                   | Use CSRF-tokens in POST requests.                                                        | Done   |
-| CWE-352: Cross-Site Request Forgery (CSRF)                                                   | Do not use GET requests for triggering any changes.                                      | Todo   |
+| CWE-352: Cross-Site Request Forgery (CSRF)                                                   | Do not use GET requests for triggering any changes.                                      | Done   |
 | CWE-89: Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection') | Use parameterization to separate data and code.                                          | Done   |
 | CWE-798: Use of Hard-coded Credentials                                                       | Read all secrets from environment variables.                                             | Done   |
 
