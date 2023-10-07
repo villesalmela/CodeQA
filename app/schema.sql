@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS auth_events (
     event_id SERIAL PRIMARY KEY,
-    user_id UUID REFERENCES users(user_id),
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
     event_time INT DEFAULT EXTRACT(EPOCH FROM CURRENT_TIMESTAMP),
     event_type TEXT NOT NULL,
     success BOOLEAN NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS auth_events (
 
 CREATE TABLE IF NOT EXISTS account_events (
     event_id SERIAL PRIMARY KEY,
-    user_id UUID REFERENCES users(user_id),
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
     event_time INT DEFAULT EXTRACT(EPOCH FROM CURRENT_TIMESTAMP),
     event_type TEXT NOT NULL,
     success BOOLEAN NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS account_events (
 
 CREATE TABLE IF NOT EXISTS functions (
     function_id SERIAL PRIMARY KEY,
-    user_id UUID REFERENCES users(user_id) NOT NULL,
+    user_id UUID REFERENCES users(user_id) NOT NULL ON DELETE CASCADE,
     name TEXT UNIQUE NOT NULL,
     code TEXT NOT NULL,
     tests TEXT NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS functions (
 
 CREATE TABLE IF NOT EXISTS sessions (
     session_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    user_id UUID REFERENCES users(user_id) NOT NULL,
+    user_id UUID REFERENCES users(user_id) NOT NULL ON DELETE CASCADE,
     created INT DEFAULT EXTRACT(EPOCH FROM CURRENT_TIMESTAMP),
     data BYTEA CHECK (LENGTH(data) < 100000)
 )
