@@ -23,7 +23,7 @@ def run_pylint(filename):
     lint_result = json.load(pylint_output)
 
     # get and parse message descriptions from project website
-    base_url = "https://pylint.pycqa.org/en/latest/user_guide/messages/"
+    base_url = "https://pylint.pycqa.org/en/latest/user_guide/messages"
     description_cache = {}
     for entry in lint_result:
         if entry["message-id"] not in description_cache:
