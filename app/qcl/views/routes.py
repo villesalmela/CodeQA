@@ -268,12 +268,10 @@ def add():
                 return redirect(url_for("doc"))
             
             else: # unexpected submit
-                raise RuntimeError
+                abort(400)
         
         else: # data not ok
             return render_template("add.html.j2", form=form)
-    else: # unexpected method
-        raise RuntimeError
 
 @app.route("/doc", methods=["GET", "POST"])
 @needs_user
@@ -306,9 +304,7 @@ def doc():
             else: # data not ok
                 return render_template("doc.html.j2", form=form)
         else: # unexpected submit
-            raise RuntimeError
-    else: # unexpected method
-        raise RuntimeError
+            abort(400)
 
 @app.route("/test", methods=["GET", "POST"])
 @needs_user
@@ -348,15 +344,11 @@ def test():
             else: # data not ok
                 return render_template("test.html.j2", form=form)
         else: # unexpected submit
-            raise RuntimeError
-    else: # unexpected method
-        raise RuntimeError
+            abort(400)
 
 @app.route("/classify", methods=["GET", "POST"])
 @needs_user
 def classify():
-    
-    
     form = ClassifyForm()
 
     if request.method == "GET":
