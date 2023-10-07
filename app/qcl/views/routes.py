@@ -430,11 +430,15 @@ def view_function(function_id):
         message = "Failed to read function"
         app.logger.exception(message)
         abort(500, message)
-    del fdata["user_id"]
     fdata["code"] = code_format.format(fdata["code"])
     fdata["tests"] = code_format.format(fdata["tests"])
     fdata["keywords"] = [x.strip() for x in fdata["keywords"].split(",")]
-    return render_template("function.html.j2", fdata=fdata)
+    fuid = fdata.pop("user_id")
+    user_id = g.user.id
+    user_role = g.user.role
+    delete_permission = fuid == user_id or user_role == "admin"
+        
+    return render_template("function.html.j2", fdata=fdata, function_id=function_id, delete_permission=delete_permission)
 
 @app.route("/functions", methods=["GET"])
 @needs_user
