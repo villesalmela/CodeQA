@@ -1,4 +1,4 @@
-{% extends 'base_nologin.html' %}
+{% extends 'base_nologin.html.j2' %}
 {% block title %}Login to Code QA{% endblock %}
 {% block body %}
 <h1>Email Verification</h1>
@@ -11,4 +11,5 @@
     <div>{{ form.code.label }}: {{ form.code() }}</div>
     <input type="submit" value="Submit">
 </form>
+<a href="/logout">Log out</a>
 {% endblock %}

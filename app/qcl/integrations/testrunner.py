@@ -21,29 +21,23 @@ lambda_client = session.client("lambda")
 
 def execute(
     func: str, test: str
-) -> tuple[bool, str | dict[str, str | int | bool | list[str]]]:
+) -> dict[str, str | int | bool | list[str]]:
     "Run the unit tests against the given function, using AWS lambda"
 
-    try:
-        data = json.dumps({"func": func, "test": test})
-        response = lambda_client.invoke(
-            FunctionName="pytest",
-            InvocationType="RequestResponse",
-            Payload=bytes(data, encoding="utf-8"),
-        )
-        status = response["StatusCode"]
-        error = response.get("FunctionError")
-        payload = response["Payload"].read().decode("utf-8")
-        if status == 200 and not error:
-            out = json.loads(payload)
-        else:
-            out = {"error": error, "payload": json.loads(payload)}
-        success = True
-    except:
-        success = False
-        out = traceback.format_exc()
-
-    return success, out
+    data = json.dumps({"func": func, "test": test})
+    response = lambda_client.invoke(
+        FunctionName="pytest",
+        InvocationType="RequestResponse",
+        Payload=bytes(data, encoding="utf-8"),
+    )
+    status = response["StatusCode"]
+    error = response.get("FunctionError")
+    payload = response["Payload"].read().decode("utf-8")
+    if status == 200 and not error:
+        out = json.loads(payload)
+    else:
+        out = {"error": error, "payload": json.loads(payload)}
+    return out
 
 
 def handle(
