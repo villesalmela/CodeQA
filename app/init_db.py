@@ -16,27 +16,30 @@ db_port = os.environ.get("DB_PORT")
 def initialize_database():
 
     logging.info("Initializing database")
-    conn = psycopg2.connect(
-        host=db_host,
-        port=db_port,
-        database=db_name,
-        user=db_user,
-        password=db_password,
-        sslmode="require"
-    )
+    try:
+        conn = psycopg2.connect(
+            host=db_host,
+            port=db_port,
+            database=db_name,
+            user=db_user,
+            password=db_password,
+            sslmode="require"
+        )
 
-    cur = conn.cursor()
+        cur = conn.cursor()
 
-    # fetch the queries
-    query = Path("schema.sql").read_text()
-    
-    # execute the queries
-    cur.execute(query)
+        # fetch the queries
+        query = Path("schema.sql").read_text()
+        
+        # execute the queries
+        cur.execute(query)
 
-    # commit changes
-    conn.commit()
-    cur.close()
-    conn.close()
+        # commit changes
+        conn.commit()
+        cur.close()
+        conn.close()
+    except:
+        logging.exception("Database init failed.")
 
 if __name__ == "__main__":
     initialize_database()

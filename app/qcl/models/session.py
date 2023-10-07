@@ -1,5 +1,6 @@
 from qcl.utils import dbrunner, general, serialize
 from flask import g
+from qcl import app
 
 SESSION_MAX_LIFETIME = 3600
 
@@ -7,12 +8,14 @@ class PSQLSession:
 
     @staticmethod
     def open(session_id) -> str:
+        app.logger.debug("Opening existing session")
         g.psql_session_id = session_id
         query = "SELECT user_id, created, data FROM sessions WHERE session_id=:session_id"
         params = {"session_id": session_id}
-        success, result = dbrunner.execute(query, params)
-        if not success:
-            raise RuntimeError("Failed to read session")
+        try:
+            result = dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to read session") from e
         row = result.first()
         if row is None:
             raise ValueError("Session doesn't exist")
@@ -48,13 +51,16 @@ class PSQLSession:
         return g.psql_session.get(key)
     
     @staticmethod
-    def new(user_id: str, data: dict) -> str:
+    def new(user_id: str) -> str:
+        data = {}
+        app.logger.debug("Creating new session")
         query = "INSERT INTO sessions (user_id, data) VALUES (:user_id, :data) RETURNING session_id"
         data_bytes = serialize.compress(data)
         params = {"user_id": user_id, "data": data_bytes}
-        success, result = dbrunner.execute(query, params)
-        if not success:
-            raise RuntimeError("Failed to create session")
+        try:
+            result = dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to create session") from e
         row = result.first()
         session_id = row.session_id
         g.psql_session = data
@@ -64,21 +70,28 @@ class PSQLSession:
 
     @staticmethod
     def save() -> None:
+        app.logger.debug("Saving session")
         if g.psql_session_modified:
+            app.logger.debug("Session modified, writing to db")
             query = "UPDATE sessions SET data=:data WHERE session_id=:session_id"
             data = serialize.compress(g.psql_session)
             params = {"session_id": g.psql_session_id, "data": data}
-            success, _ = dbrunner.execute(query, params)
-            if not success:
-                raise RuntimeError("Failed to write session")
+            try:
+                dbrunner.execute(query, params)
+            except Exception as e:
+                raise RuntimeError("Failed to write session") from e
+        else:
+            app.logger.debug("Session NOT modified, NOT writing to db")
             
     @staticmethod
     def delete() -> None:
+        app.logger.debug("Deleting session")
         query = "DELETE FROM sessions WHERE session_id=:session_id"
         params = {"session_id": g.psql_session_id}
-        success, _ = dbrunner.execute(query, params)
-        if not success:
-            raise RuntimeError("Failed to delete session")
+        try:
+            dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to delete session") from e
         attrs = ["psql_session", "psql_session_id", "psql_session_modified"]
         for a in attrs:
             delattr(g, a)
