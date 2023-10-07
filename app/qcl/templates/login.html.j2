@@ -2,15 +2,7 @@
 {% block title %}Login to Code QA{% endblock %}
 {% block body %}
 <h1>Login</h1>
-{% if form.errors %}
-<ul class="errors">
-    {% for field_name, field_errors in form.errors|dictsort if field_errors %}
-    {% for error in field_errors %}
-    <li>{{ form[field_name].label }}: {{ error }}</li>
-    {% endfor %}
-    {% endfor %}
-</ul>
-{% endif %}
+{% include 'error_form.html.j2' %}
 {% if error %}
 <span style="color: red;">Invalid credentials</span>
 {% endif %}
