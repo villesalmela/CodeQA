@@ -125,14 +125,14 @@ def internal_server_error(error):
     return render_template("error_internal_server_error.html.j2", message=error.description), 500
 
 ### HOME PAGE
-@app.route("/")
+@app.route("/", methods=["GET"])
 def index():
     if "session_id" not in client_session:
         return redirect(url_for("login"))
     return render_template("index.html.j2")
 
 ### LOGIN AND REGISTRATION
-@app.route("/login",methods=["GET", "POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
 
     if "session_id" in client_session:
@@ -182,28 +182,32 @@ def verify_email():
     if g.user.verified:
         app.logger.debug("already verified")
         return redirect(url_for("index"))
+    
+    form = EmailVerificationForm()
 
     if request.method == "GET":
-        return render_template("email_verification.html.j2", form=EmailVerificationForm(), error=False)
+        return render_template("email_verification.html.j2", form=form, error=False)
     
     elif request.method == "POST":
         app.logger.debug("verifying")
-        
-        code = request.form["code"]
-        try:
-            valid = g.user.check_verification_code(code)
-        except Exception:
-            message = "Failed to check verification code"
-            app.logger.exception(message)
-            abort(500, message)
-        if valid:
-            app.logger.debug("verified")
-            return redirect(url_for("index"))
-        else:
-            app.logger.debug("not verified")
-            return render_template("email_verification.html.j2", form=EmailVerificationForm(), error=True)
+        if form.validate(): # form ok
+            code = request.form["code"]
+            try:
+                valid = g.user.check_verification_code(code)
+            except Exception:
+                message = "Failed to check verification code"
+                app.logger.exception(message)
+                abort(500, message)
+            if valid:
+                app.logger.debug("verified")
+                return redirect(url_for("index"))
+            else:
+                app.logger.debug("not verified")
+                return render_template("email_verification.html.j2", form=form, error=True)
+        else: # form not ok
+            return render_template("email_verification.html.j2", form=form)
 
-@app.route("/logout")
+@app.route("/logout", methods=["GET"])
 def logout():
     if "session_id" in client_session:
         del client_session["session_id"]
@@ -268,12 +272,10 @@ def add():
                 return redirect(url_for("doc"))
             
             else: # unexpected submit
-                raise RuntimeError
+                abort(400)
         
         else: # data not ok
             return render_template("add.html.j2", form=form)
-    else: # unexpected method
-        raise RuntimeError
 
 @app.route("/doc", methods=["GET", "POST"])
 @needs_user
@@ -306,9 +308,7 @@ def doc():
             else: # data not ok
                 return render_template("doc.html.j2", form=form)
         else: # unexpected submit
-            raise RuntimeError
-    else: # unexpected method
-        raise RuntimeError
+            abort(400)
 
 @app.route("/test", methods=["GET", "POST"])
 @needs_user
@@ -348,23 +348,20 @@ def test():
             else: # data not ok
                 return render_template("test.html.j2", form=form)
         else: # unexpected submit
-            raise RuntimeError
-    else: # unexpected method
-        raise RuntimeError
+            abort(400)
 
 @app.route("/classify", methods=["GET", "POST"])
 @needs_user
 def classify():
-    expected_args = ["source_code_documented", "source_code_unittests"]
-    for arg in expected_args:
-        if not arg in server_session:
-            message = "Invalid parameters"
-            app.logger.error(message)
-            abort(400, message)
-    
     form = ClassifyForm()
 
     if request.method == "GET":
+        expected_args = ["source_code_documented", "source_code_unittests"]
+        for arg in expected_args:
+            if not arg in server_session:
+                message = "Invalid parameters"
+                app.logger.error(message)
+                abort(400, message)
         return render_template("classify.html.j2", form=form)
 
     if request.method == "POST":
@@ -378,16 +375,31 @@ def classify():
             keywords_str = str(keywords).strip("}{")
             form.keywords.data = keywords_str
             return render_template("classify.html.j2", form=form)
-        if form.save.data: # clicked save
+        elif form.save.data: # clicked save
             if form.validate(): # data ok
                 keywords = {x.strip() for x in form.keywords.data.split(",")}
-                keywords_str = str(keywords).strip("}{")
-                server_session["function_keywords"] = keywords_str
-                server_session["function_name"] = form.name.data
-                server_session["function_usecase"] = form.usecase.data
-                return redirect(url_for("save_new_function"))
+                keywords = str(keywords).strip("}{")
+                name = form.name.data
+                usecase = form.usecase.data
+                code = server_session["source_code_documented"]
+                tests = server_session["source_code_unittests"]
+                user_id = g.user.id
+                try:
+                    function_id = function.save_function(code, tests, keywords, usecase, name, user_id)
+                except Exception:
+                    message = "Failed to save function"
+                    app.logger.exception(message)
+                    abort(500, message)
+
+                # clear saved function data from session
+                for arg in ["source_code", "source_code_documented", "source_code_unittests"]:
+                    del server_session[arg]
+
+                return redirect(url_for("view_function", function_id=function_id)) 
             else: # data not ok
                 return render_template("classify.html.j2", form=form)
+        else: # invalid submit
+            abort(400)
 
 @app.route("/delete_function/<int:function_id>", methods=["POST"])
 @needs_user
@@ -409,38 +421,7 @@ def delete_function(function_id: int):
         app.logger.warning(message)
         abort(403, message)
     
-@app.route("/save_new_function")
-@needs_user
-def save_new_function():
-    expected_args = ["source_code", "source_code_documented", "source_code_unittests", "function_keywords", "function_name",
-                     "function_usecase"]
-    for arg in expected_args:
-        if not arg in server_session:
-            message = "Invalid parameters"
-            app.logger.error(message)
-            abort(400, message)
-        
-    code = server_session["source_code_documented"]
-    tests = server_session["source_code_unittests"]
-    keywords = server_session["function_keywords"]
-    name = server_session["function_name"]
-    usecase = server_session["function_usecase"]
-    user_id = g.user.id
-
-    try:
-        function_id = function.save_function(code, tests, keywords, usecase, name, user_id)
-    except Exception:
-        message = "Failed to save function"
-        app.logger.exception(message)
-        abort(500, message)
-
-    # clear session
-    for arg in expected_args:
-        del server_session[arg]
-
-    return redirect(url_for("view_function", function_id=function_id)) 
-
-@app.route("/functions/<int:function_id>")
+@app.route("/functions/<int:function_id>", methods=["GET"])
 @needs_user
 def view_function(function_id):
     try:
@@ -455,7 +436,7 @@ def view_function(function_id):
     fdata["keywords"] = [x.strip() for x in fdata["keywords"].split(",")]
     return render_template("function.html.j2", fdata=fdata)
 
-@app.route("/functions")
+@app.route("/functions", methods=["GET"])
 @needs_user
 def list_functions():
     try:
