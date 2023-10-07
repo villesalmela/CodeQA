@@ -182,26 +182,30 @@ def verify_email():
     if g.user.verified:
         app.logger.debug("already verified")
         return redirect(url_for("index"))
+    
+    form = EmailVerificationForm()
 
     if request.method == "GET":
-        return render_template("email_verification.html.j2", form=EmailVerificationForm(), error=False)
+        return render_template("email_verification.html.j2", form=form, error=False)
     
     elif request.method == "POST":
         app.logger.debug("verifying")
-        
-        code = request.form["code"]
-        try:
-            valid = g.user.check_verification_code(code)
-        except Exception:
-            message = "Failed to check verification code"
-            app.logger.exception(message)
-            abort(500, message)
-        if valid:
-            app.logger.debug("verified")
-            return redirect(url_for("index"))
-        else:
-            app.logger.debug("not verified")
-            return render_template("email_verification.html.j2", form=EmailVerificationForm(), error=True)
+        if form.validate(): # form ok
+            code = request.form["code"]
+            try:
+                valid = g.user.check_verification_code(code)
+            except Exception:
+                message = "Failed to check verification code"
+                app.logger.exception(message)
+                abort(500, message)
+            if valid:
+                app.logger.debug("verified")
+                return redirect(url_for("index"))
+            else:
+                app.logger.debug("not verified")
+                return render_template("email_verification.html.j2", form=form, error=True)
+        else: # form not ok
+            return render_template("email_verification.html.j2", form=form)
 
 @app.route("/logout", methods=["GET"])
 def logout():
