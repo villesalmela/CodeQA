@@ -2,6 +2,11 @@
 {% block title %}Code QA{% endblock %}
 {% block body %}
 <h1>{{ fdata.name }}</h1>
+{% if delete_permission %}
+<form action="/delete_function/{{ function_id }}" method="POST">
+    <button type="submit">Delete</button>
+</form>
+{% endif %}
 <h3>Author: {{ fdata.username }}</h3>
 <h3>Keywords:</h3>
 <ul>
