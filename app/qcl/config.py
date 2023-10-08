@@ -8,3 +8,4 @@ db_port = os.environ["DB_PORT"]
 
 class Config:
     SQLALCHEMY_DATABASE_URI = f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}?sslmode=require'
+    MAX_CONTENT_LENGTH = 1000000
