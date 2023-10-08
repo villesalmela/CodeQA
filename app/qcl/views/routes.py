@@ -451,3 +451,36 @@ def list_functions():
         abort(500, message)
     return render_template("functions.html.j2", fdata=fdata)
 
+@app.route("/user_management", methods=["GET"])
+@needs_admin
+def user_management():
+    pass
+
+@app.route("/delete_user/<string:user_id>", methods=["POST"])
+@needs_user
+def delete_user(user_id: str):
+    if not (user_id == g.user.id or g.user.role == "admin"):
+        abort(403, "Not authorized to delete other users.")
+    try:
+        user = User(user_id=user_id)
+        user.delete()
+    except ValueError:
+        message = "User does not exist"
+        public_message = "Failed to delete user" # public message is always same, to prevent user enumeration
+        app.logger.error(message)
+        abort(500, public_message)
+    except Exception:
+        message = "Failed to delete user"
+        app.logger.exception(message)
+        abort(500, message)
+    
+    # deleting own user
+    if user_id == g.user.id:
+        del client_session["session_id"]
+        return redirect(url_for("index"))
+    
+    # deleting someone else
+    else:
+        return redirect(url_for("user_managament"))
+
+
