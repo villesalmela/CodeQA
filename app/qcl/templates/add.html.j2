@@ -5,8 +5,8 @@
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="/static/functions.js"></script>
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='syntax.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ace.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='monokai.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ace/ace.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ace/theme/monokai.css') }}">
 {% endblock %}
 {% block title %}Code QA{% endblock %}
 {% block body %}
@@ -62,7 +62,7 @@
     </thead>
     <tbody>
         {% for item in lint_result %}
-        <tr onclick="pylintRowClicked(this)">
+        <tr>
             <td>{{ item.type }}</td>
             <td>{{ item.obj }}</td>
             <td>{{ item.message }}</td>
@@ -75,6 +75,24 @@
         {% endfor %}
     </tbody>
 </table>
+<script nonce="{{ csp_nonce() }}">
+// handle highlighting rows in code, based on user clicking rows on results table
+document.addEventListener("DOMContentLoaded", function() {
+    
+    // the results table
+    const table = document.getElementById("lint-results");
+
+    // the table
+    table.addEventListener("click", function(event) {
+        
+        // the row which was clicked
+        let row = event.target.closest('tr');
+
+        // do highlighting
+        pylintRowClicked(row);
+    });
+});
+</script>
 <label for="lint_box">Output: linting</label>
 <div id="lint_box" class="editor-box"></div>
 <script nonce="{{ csp_nonce() }}">
