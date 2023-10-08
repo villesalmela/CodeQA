@@ -219,7 +219,7 @@ class User:
         
     def unlock(self) -> None:
         app.logger.debug("Unlocking user")
-        query = "UPDATE users SET disabled=NULL WHERE user_id=:user_id"
+        query = "UPDATE users SET locked=NULL WHERE user_id=:user_id"
         params = {"user_id": self.id}
         try:
             dbrunner.execute(query, params)
