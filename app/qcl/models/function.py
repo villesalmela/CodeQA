@@ -39,6 +39,15 @@ def list_functions() -> list[Row]:
         raise RuntimeError("Failed to list functions") from e
     return result.all()
 
+def list_functions_by_user(user_id: str) -> list[Row]:
+    query = "SELECT function_id, name, usecase, keywords FROM functions WHERE user_id=:user_id"
+    params = {"user_id": user_id}
+    try:
+        result = dbrunner.execute(query, params)
+    except Exception as e:
+        raise RuntimeError("Failed to list functions") from e
+    return result.all()
+
 def delete_function(function_id: int) -> None:
     query = "DELETE FROM functions WHERE function_id = :function_id;"
     params = {"function_id": function_id}
