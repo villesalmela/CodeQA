@@ -3,6 +3,7 @@ from email_validator import validate_email
 from qcl.utils import log, general, dbrunner, auth
 from qcl.integrations import email
 from qcl import app
+from sqlalchemy.engine import Row
 
 
 def new_users_count_total() -> int:
@@ -32,6 +33,23 @@ def new_users_count_ip(remote_ip: str) -> int:
     count = result.first()[0]
     assert isinstance(count, int)
     return count
+
+def list_users() -> list[Row]:
+    query = """
+        SELECT u.user_id as user_id, u.username as username, u.admin as admin, \
+            u.verified as verified, u.disabled as disabled, u.created as created, \
+            u.locked as locked, s.sessions a sessions, f.functions as functions \
+        FROM users AS u
+        INNER JOIN (
+            SELECT user_id, COUNT(*) as sessions FROM sessions GROUP BY user_id
+        ) AS s ON s.user_id = u.user_id
+        INNER JOIN (
+            SELECT user_id, COUNT(*) as functions FROM functions GROUP BY user_id
+        ) AS f ON f.user_id = u.user_id
+        """
+    result = dbrunner.execute(query)
+    rows = result.all()
+    return rows
 
 class User:
 
@@ -156,4 +174,11 @@ class User:
         log.login(self.id, status, remote_ip, reason)
         return reason
     
-
+    def delete(self) -> None:
+        app.logger.debug("Deleting user")
+        query = "DELETE FROM users WHERE user_id=:user_id"
+        params = {"user_id": self.id}
+        try:
+            dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to delete user") from e
