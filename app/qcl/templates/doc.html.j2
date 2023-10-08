@@ -4,6 +4,9 @@
     integrity="sha512-ZxGMf7jYJjId6DxujolfBm1Fgk3eNuujx2bg1oFB6jlXhj33BR47Pnh4wLRhvdCpwoWCKP23sdLQPrIBlTEFKA=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="/static/functions.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='syntax.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ace.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='monokai.css') }}">
 {% endblock %}
 {% block title %}Code QA{% endblock %}
 {% block body %}
@@ -23,15 +26,16 @@
 <form method="POST" action="/doc">
     {{ form.csrf_token }}
     <label for="editor_box_code">Source Code</label><br>
-    <div id="editor_box_code" style="height: 300px; width: 500px;"></div>
+    <div id="editor_box_code" class="editor-box"></div>
     <input type="hidden" id="code" name="code">
     <label for="editor_box_documented">Source Code (Documented)</label><br>
-    <div id="editor_box_documented" style="height: 300px; width: 500px;"></div>
+    <div id="editor_box_documented" class="editor-box"></div>
     <input type="hidden" id="documented" name="documented">
     {{ form.generate }}
     {{ form.next }}
 </form>
-<script>
+<script nonce="{{ csp_nonce() }}">
+    ace.config.set("useStrictCSP", true);
     var editor_code = ace.edit("editor_box_code");
     editor_code.setTheme("ace/theme/monokai");
     editor_code.getSession().setMode("ace/mode/python");

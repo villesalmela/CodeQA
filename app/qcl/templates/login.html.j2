@@ -4,7 +4,7 @@
 <h1>Login</h1>
 {% include 'error_form.html.j2' %}
 {% if error %}
-<span style="color: red;">Invalid credentials</span>
+<p class="error-message">Invalid credentials</p>
 {% endif %}
 <form method="POST" action="/login">
     {{ form.csrf_token }}

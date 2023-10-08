@@ -3,6 +3,10 @@ from email_validator import validate_email
 from qcl.utils import log, general, dbrunner, auth
 from qcl.integrations import email
 from qcl import app
+from sqlalchemy.engine import Row
+from qcl.models.session import SESSION_MAX_LIFETIME
+
+USER_LOCKOUT_DURATION = 300
 
 
 def new_users_count_total() -> int:
@@ -32,6 +36,27 @@ def new_users_count_ip(remote_ip: str) -> int:
     count = result.first()[0]
     assert isinstance(count, int)
     return count
+
+def list_users() -> list[Row]:
+    query = """
+        SELECT u.user_id as user_id, u.username as username, u.admin as admin,
+            u.verified as verified, u.disabled as disabled, u.created as created,
+            u.locked as locked, s.sessions as sessions, f.functions as functions
+        FROM users AS u
+        LEFT JOIN (
+            SELECT user_id, COUNT(*) as sessions FROM sessions
+            WHERE created > :time_filter
+            GROUP BY user_id
+        ) AS s ON s.user_id = u.user_id
+        LEFT JOIN (
+            SELECT user_id, COUNT(*) as functions FROM functions GROUP BY user_id
+        ) AS f ON f.user_id = u.user_id
+        """
+    time_filter = general.get_time_seconds_ago(SESSION_MAX_LIFETIME)
+    params = {"time_filter": time_filter}
+    result = dbrunner.execute(query, params)
+    rows = result.all()
+    return rows
 
 class User:
 
@@ -98,7 +123,7 @@ class User:
         self.disabled = row.disabled
         self.verified = row.verified
         self.created = row.created
-        self.locked = True if row.locked and row.locked > general.get_time_minutes_ago(15) else False
+        self.locked = True if row.locked and row.locked > general.get_time_seconds_ago(USER_LOCKOUT_DURATION) else False
     
     def check_verification_code(self, verification_code: str):
         remote_ip = general.get_remote_ip()
@@ -156,4 +181,88 @@ class User:
         log.login(self.id, status, remote_ip, reason)
         return reason
     
+    def delete(self) -> None:
+        app.logger.debug("Deleting user")
+        query = "DELETE FROM users WHERE user_id=:user_id"
+        params = {"user_id": self.id}
+        try:
+            dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to delete user") from e
+        
+    def disable(self) -> None:
+        app.logger.debug("Disabling user")
+        query = "UPDATE users SET disabled=TRUE WHERE user_id=:user_id"
+        params = {"user_id": self.id}
+        try:
+            dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to disable user") from e
+        
+    def enable(self) -> None:
+        app.logger.debug("Enabling user")
+        query = "UPDATE users SET disabled=FALSE WHERE user_id=:user_id"
+        params = {"user_id": self.id}
+        try:
+            dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to enable user") from e
+        
+    def lock(self) -> None:
+        app.logger.debug("Locking user")
+        query = "UPDATE users SET locked=EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) WHERE user_id=:user_id"
+        params = {"user_id": self.id}
+        try:
+            dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to lock user") from e
+        
+    def unlock(self) -> None:
+        app.logger.debug("Unlocking user")
+        query = "UPDATE users SET locked=NULL WHERE user_id=:user_id"
+        params = {"user_id": self.id}
+        try:
+            dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to unlock user") from e
+        
+    def logout(self) -> None:
+        app.logger.debug("Logging out user")
+        query = "DELETE FROM sessions WHERE user_id=:user_id"
+        params = {"user_id": self.id}
+        try:
+            dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to logout user") from e
+        
+    def promote(self) -> None:
+        app.logger.debug("Promoting user to admin")
+        query = "UPDATE users SET admin=TRUE WHERE user_id=:user_id"
+        params = {"user_id": self.id}
+        try:
+            dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to promote user") from e
+        
+    def demote(self) -> None:
+        app.logger.debug("Demoting admin to user")
+        query = "UPDATE users SET admin=FALSE WHERE user_id=:user_id"
+        params = {"user_id": self.id}
+        try:
+            dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to demote admin") from e
+        
+    def count_active_sessions(self) -> int:
+        query = "SELECT COUNT(*) FROM sessions WHERE user_id=:user_id AND created > :time_filter"
 
+        time_filter = general.get_time_seconds_ago(SESSION_MAX_LIFETIME)
+        params = {"user_id": self.id, "time_filter": time_filter}
+        try:
+            result = dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to read active sessions") from e
+        
+        row = result.first()
+        return row[0]
+    

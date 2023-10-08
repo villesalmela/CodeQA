@@ -1,0 +1,75 @@
+{% extends 'base.html.j2' %}
+{% block title %}Code QA{% endblock %}
+{% block body %}
+<h1>User: {{ user.name }}</h1>
+<p>Role: {{ user.role }}</p>
+<p>Status: {{ "disabled" if user.disabled else "enabled" }}</p>
+<p>Email: {{ "verified" if user.verified else "unverified" }}</p>
+<p>Suspended: {{ "yes" if user.locked else "no" }}</p>
+<p>Active sessions: {{ count_active_sessions }}</p>
+
+<h2>Management</h2>
+{% if user.disabled %}
+<form action="/edit_user/enable/{{ user.id }}", method="post">
+    <input type="submit" value="Enable">
+</form>
+{% else %}
+<form action="/edit_user/disable/{{ user.id }}", method="post">
+    <input type="submit" value="Disable">
+</form>
+{% endif %}
+
+{% if user.locked %}
+<form action="/edit_user/unlock/{{ user.id }}", method="post">
+    <input type="submit" value="Lift suspension">
+</form>
+{% else %}
+<form action="/edit_user/lock/{{ user.id }}", method="post">
+    <input type="submit" value="Suspend temporarily">
+</form>
+{% endif %}
+
+{% if user.role == "admin" %}
+<form action="/edit_user/demote/{{ user.id }}", method="post">
+    <input type="submit" value="Demote admin to user">
+</form>
+{% else %}
+<form action="/edit_user/promote/{{ user.id }}", method="post">
+    <input type="submit" value="Promote user to admin">
+</form>
+{% endif %}
+
+<form action="/edit_user/logout/{{ user.id }}", method="post">
+    <input type="submit" value="Revoke all sessions">
+</form>
+
+<form action="/edit_user/delete/{{ user.id }}", method="post">
+    <input type="submit" value="Delete">
+</form>
+
+
+<h2>Functions</h2>
+{% if data %}
+<table>
+    <thead>
+        <tr>
+            <th>name</th>
+            <th>usecase</th>
+            <th>keywords</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in data %}
+        <tr>
+            <td><a href="/function/{{ item.function_id }}">{{ item.name }}</a></td>
+            <td>{{ item.usecase }}</td>
+            <td>{{ item.keywords }}</td>
+
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>User has not added any functions</p>
+{% endif %}
+{% endblock %}

@@ -98,7 +98,7 @@ The application supports users in documentation and quality control of their fun
 | CWE-89: Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection') | Use parameterization to separate data and code.                                          | Done   |
 | CWE-798: Use of Hard-coded Credentials                                                       | Read all secrets from environment variables.                                             | Done   |
 
-## Status
+## Status 1
 ### Operational functionalities
 - Users can create new accounts using their email as username
 - Users can save new functions to the library
@@ -116,15 +116,46 @@ The application supports users in documentation and quality control of their fun
 - User and library management functionality
 - Improve user interface and visuals
 
+## Status 2
+### New operational functionalities (since status 1)
+- Admins can:
+    - list all users
+    - disable and enable users
+    - suspend and unsuspend users
+    - revoke user's all sessions
+    - promote users to admin
+    - demote admins to user
+    - delete users (along with all their data)
+- Users can delete their own functions from the library
+- Admins can delete any functions from the library
+
+### New structure (since status 1)
+- Changed to using server-side session
+- Added navigation bar
+- Added indicator which display logged in user
+- Increased security by controlling headers with Flask-Talisman
+- Configured and instructed usage of Development Containers extension for VSCode
+
+### New documentation (since status 1)
+- Started listing security considerations on README
+- Added description of database schema on README
+
 ## Testing
 Application is packaged into docker container using Github Action, and uploaded to AWS ECR by the pipeline.
 AWS AppRunner is serving the app, which is available at https://codeqa.online
 
 To create an account, you need to use your university email address.
 
-Test account is available:
+Test accounts are available:
 - username: testuser@villesalmela.fi
 - password: password
+
+
+- username: testadmin@villesalmela.fi
+- password: password
+
+Please don't delete or disable admin account, you currently can't make more of them without direct DB access.
+
 
 One test function was saved to the library using this input:
 ```python
@@ -170,5 +201,8 @@ While you can run the web app and database locally, some components don't curren
     - Place secret values in the newly created file
 1. In VS Code, press F1
 1. Enter command `>dev containers: open folder in container`
-    - select the project root folder
-    - this will build and start the image, and make the app available at http://localhost:8000
+    - Select the project root folder
+    - This will build and start the image
+1. Change to `app` directory
+1. Run `gunicorn -c gunicorn_config.py qcl:app`
+    - This will make the app available at http://localhost:8000

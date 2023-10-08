@@ -2,9 +2,11 @@ from qcl import app
 from qcl.utils import code_format, fileops
 from qcl.integrations import gpt, linter, testrunner
 from qcl.models.user import User
+from qcl.models import user as user_module
 from qcl.models import function
 from qcl.views.forms import SignupForm, LoginForm, EmailVerificationForm, CodeForm, DocForm, TestForm, ClassifyForm
 from qcl.models.session import server_session
+from datetime import datetime
 
 from flask import render_template, request, redirect, url_for, g, abort, make_response, session as client_session
 from functools import wraps
@@ -30,6 +32,15 @@ def needs_admin(func):
             abort(403)
         return func(*args, **kwargs)
     return wrapper
+
+### CONTEXT HANDLING
+@app.context_processor
+def role_context():
+    return {'user_role': getattr(g.get('user'), "role", None)}
+
+@app.context_processor
+def user_context():
+    return {'username': getattr(g.get('user'), "name", None)}
 
 ### SESSION HANDLING
 @app.before_request
@@ -421,7 +432,7 @@ def delete_function(function_id: int):
         app.logger.warning(message)
         abort(403, message)
     
-@app.route("/functions/<int:function_id>", methods=["GET"])
+@app.route("/function/<int:function_id>", methods=["GET"])
 @needs_user
 def view_function(function_id):
     try:
@@ -451,3 +462,77 @@ def list_functions():
         abort(500, message)
     return render_template("functions.html.j2", fdata=fdata)
 
+@app.route("/user_management", methods=["GET"])
+@needs_admin
+def user_management():
+    data = user_module.list_users()
+    data = [row._asdict() for row in data]
+    for item in data:
+        item["created"] = datetime.fromtimestamp(item["created"]).strftime('%Y-%m-%d %H:%M:%S')
+    return render_template("user_management.html.j2", data=data)
+
+@app.route("/edit_user/<string:action>/<string:user_id>", methods=["POST"])
+@needs_admin
+def edit_user(action: str, user_id: str):
+    try:
+        user = User(user_id=user_id)
+        match action:
+            case "delete":
+                func = user.delete
+            case "disable":
+                func = user.disable
+            case "enable":
+                func = user.enable
+            case "lock":
+                func = user.lock
+            case "unlock":
+                func = user.unlock
+            case "logout":
+                func = user.logout
+            case "promote":
+                func = user.promote
+            case "demote":
+                func = user.demote
+            case _:
+                abort(400, "Bad action")
+        func()
+    except ValueError:
+        message = "User does not exist"
+        public_message = f"Failed to {action} user" # public message is always same, to prevent user enumeration
+        app.logger.error(message)
+        abort(500, public_message)
+    except Exception:
+        message = f"Failed to {action} user"
+        app.logger.exception(message)
+        abort(500, message)
+    
+    # invalidating own access
+    if user_id == g.user.id and action in ["delete", "disable", "lock", "logout"]:
+        del client_session["session_id"]
+        return redirect(url_for("index"))
+    
+    # deleting user
+    elif action == "delete":
+        return redirect(url_for("user_management"))
+
+    # otherwise
+    else:
+        return redirect(url_for(f"user", user_id=user_id))
+    
+@app.route("/user/<string:user_id>", methods=["GET"])
+@needs_admin
+def user(user_id: str):
+    user_functions = function.list_functions_by_user(user_id)
+    try:
+        user = User(user_id=user_id)
+        count_active_sessions = user.count_active_sessions()
+    except ValueError:
+        message = "User does not exist"
+        public_message = f"Failed to view user" # public message is always same, to prevent user enumeration
+        app.logger.error(message)
+        abort(500, public_message)
+    except Exception:
+        message = f"Failed to view user"
+        app.logger.exception(message)
+        abort(500, message)
+    return render_template("user.html.j2", user=user, count_active_sessions=count_active_sessions, data=user_functions)

@@ -4,6 +4,9 @@
     integrity="sha512-ZxGMf7jYJjId6DxujolfBm1Fgk3eNuujx2bg1oFB6jlXhj33BR47Pnh4wLRhvdCpwoWCKP23sdLQPrIBlTEFKA=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="/static/functions.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='syntax.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ace.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='monokai.css') }}">
 {% endblock %}
 {% block title %}Code QA{% endblock %}
 {% block body %}
@@ -21,11 +24,12 @@
 <form method="POST" action="/add">
     {{ form.csrf_token }}
     <label for="editor_box">Source Code</label><br>
-    <div id="editor_box" style="height: 300px; width: 500px;"></div>
+    <div id="editor_box" class="editor-box"></div>
     <input type="hidden" id="code" name="code">
     {{ form.lint }} {{ form.doc }}
 </form>
-<script>
+<script nonce="{{ csp_nonce() }}">
+    ace.config.set("useStrictCSP", true);
     var editor = ace.edit("editor_box");
     editor.setTheme("ace/theme/monokai");
     editor.getSession().setMode("ace/mode/python");
@@ -72,8 +76,8 @@
     </tbody>
 </table>
 <label for="lint_box">Output: linting</label>
-<div id="lint_box" style="height: 300px; width: 500px;"></div>
-<script>
+<div id="lint_box" class="editor-box"></div>
+<script nonce="{{ csp_nonce() }}">
     var lint_obj = ace.edit("lint_box");
     lint_obj.setTheme("ace/theme/monokai");
     lint_obj.getSession().setMode("ace/mode/python");
