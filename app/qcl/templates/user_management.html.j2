@@ -5,7 +5,6 @@
  <table>
         <thead>
             <tr>
-                <th>user_id</th>
                 <th>username</th>
                 <th>admin</th>
                 <th>verified</th>
@@ -19,8 +18,7 @@
         <tbody>
             {% for item in data %}
                 <tr>
-                    <td>{{ item.user_id }}</td>
-                    <td>{{ item.username }}</td>
+                    <td><a href="/user/{{ item.user_id }}">{{ item.username }}</a></td>
                     <td>{{ item.admin }}</td>
                     <td>{{ item.verified }}</td>
                     <td>{{ item.disabled }}</td>
