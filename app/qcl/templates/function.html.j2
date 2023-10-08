@@ -1,4 +1,7 @@
 {% extends 'base.html.j2' %}
+{% block head %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='syntax.css') }}">
+{% endblock %}
 {% block title %}Code QA{% endblock %}
 {% block body %}
 <h1>{{ fdata.name }}</h1>
