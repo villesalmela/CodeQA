@@ -38,7 +38,7 @@ def list_users() -> list[Row]:
     query = """
         SELECT u.user_id as user_id, u.username as username, u.admin as admin, \
             u.verified as verified, u.disabled as disabled, u.created as created, \
-            u.locked as locked, s.sessions a sessions, f.functions as functions \
+            u.locked as locked, s.sessions as sessions, f.functions as functions \
         FROM users AS u
         INNER JOIN (
             SELECT user_id, COUNT(*) as sessions FROM sessions GROUP BY user_id
