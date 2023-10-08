@@ -6,6 +6,8 @@ from qcl import app
 from sqlalchemy.engine import Row
 from qcl.models.session import SESSION_MAX_LIFETIME
 
+USER_LOCKOUT_DURATION = 300
+
 
 def new_users_count_total() -> int:
     "Return the number of new user accounts created within last 24 hours."
@@ -121,7 +123,7 @@ class User:
         self.disabled = row.disabled
         self.verified = row.verified
         self.created = row.created
-        self.locked = True if row.locked and row.locked > general.get_time_minutes_ago(15) else False
+        self.locked = True if row.locked and row.locked > general.get_time_seconds_ago(USER_LOCKOUT_DURATION) else False
     
     def check_verification_code(self, verification_code: str):
         remote_ip = general.get_remote_ip()
