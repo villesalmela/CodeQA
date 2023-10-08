@@ -502,6 +502,10 @@ def edit_user(action: str, user_id: str):
         del client_session["session_id"]
         return redirect(url_for("index"))
     
+    # deleting user
+    elif action == "delete":
+        return redirect(url_for("user_management"))
+
     # otherwise
     else:
         return redirect(url_for(f"user", user_id=user_id))
@@ -521,4 +525,4 @@ def user(user_id: str):
         message = f"Failed to view user"
         app.logger.exception(message)
         abort(500, message)
-    return render_template("user.html.j2", username=user.name, data=user_functions)
+    return render_template("user.html.j2", user=user, data=user_functions)
