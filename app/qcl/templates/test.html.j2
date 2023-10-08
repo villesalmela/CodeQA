@@ -4,6 +4,9 @@
     integrity="sha512-ZxGMf7jYJjId6DxujolfBm1Fgk3eNuujx2bg1oFB6jlXhj33BR47Pnh4wLRhvdCpwoWCKP23sdLQPrIBlTEFKA=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="/static/functions.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='syntax.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ace.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='monokai.css') }}">
 {% endblock %}
 {% block title %}Code QA{% endblock %}
 {% block body %}
@@ -23,10 +26,10 @@
 <form method="POST" action="/test">
     {{ form.csrf_token }}
     <label for="editor_box_documented">Source Code (Documented)</label><br>
-    <div id="editor_box_documented" style="height: 300px; width: 500px;"></div>
+    <div id="editor_box_documented" class="editor-box"></div>
     <input type="hidden" id="documented" name="documented">
     <label for="editor_box_unittests">Unit Tests</label><br>
-    <div id="editor_box_unittests" style="height: 300px; width: 500px;"></div>
+    <div id="editor_box_unittests" class="editor-box"></div>
     <input type="hidden" id="unittests" name="unittests">
     {% if results %}
     <h2>Test results</h2>
@@ -38,7 +41,8 @@
     {{ form.run }}
     {{ form.next }}
 </form>
-<script>
+<script nonce="{{ csp_nonce() }}">
+    ace.config.set("useStrictCSP", true);
     var editor_documented = ace.edit("editor_box_documented");
     editor_documented.setTheme("ace/theme/monokai");
     editor_documented.getSession().setMode("ace/mode/python");

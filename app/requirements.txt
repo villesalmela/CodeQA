@@ -3,6 +3,7 @@ bs4
 email-validator
 flask
 flask-sqlalchemy
+flask-talisman
 flask_wtf
 gunicorn
 mailjet_rest

@@ -5,7 +5,7 @@
 <p>Please enter the verification code you received in your email.</p>
 {% include 'error_form.html.j2' %}
 {% if error %}
-<span style="color: red;">The code is incorrect</span>
+<p class="error-message">The code is incorrect</span>
 {% endif %}
 <form method="POST" action="/verify_email">
     {{ form.csrf_token }}

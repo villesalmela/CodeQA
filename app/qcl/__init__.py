@@ -14,6 +14,7 @@ root_logger.addHandler(stream_handler)
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_talisman import Talisman
 from qcl.config import Config
 
 # create app and db
@@ -21,6 +22,31 @@ app = Flask(__name__)
 app.secret_key = os.environ["FLASK_SESSION_KEY"]
 app.config.from_object(Config)
 db = SQLAlchemy(app)
+
+# set content security policy (CSP)
+csp = {
+    'default-src': '\'self\'',
+    'script-src': [
+        '\'self\'',
+        'https://cdnjs.cloudflare.com'
+    ],
+    'style-src': '\'self\'',
+}
+
+# force HTTPS in production
+https = os.environ["ENVIRONMENT"].lower() == "production"
+
+# configure HTTP headers with talisman
+talisman = Talisman(
+    app,
+    frame_options="DENY",
+    content_security_policy=csp,
+    content_security_policy_nonce_in=["script-src"],
+    force_https=https,
+    force_https_permanent=https,
+    strict_transport_security=https,
+    session_cookie_secure=https
+)
 
 # load routes
 import qcl.views.routes
