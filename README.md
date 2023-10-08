@@ -201,5 +201,8 @@ While you can run the web app and database locally, some components don't curren
     - Place secret values in the newly created file
 1. In VS Code, press F1
 1. Enter command `>dev containers: open folder in container`
-    - select the project root folder
-    - this will build and start the image, and make the app available at http://localhost:8000
+    - Select the project root folder
+    - This will build and start the image
+1. Change to `app` directory
+1. Run `gunicorn -c gunicorn_config.py qcl:app`
+    - This will make the app available at http://localhost:8000
