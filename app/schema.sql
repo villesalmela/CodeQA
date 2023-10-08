@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS functions (
 
 CREATE TABLE IF NOT EXISTS sessions (
     session_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    user_id UUID REFERENCES users(user_id) NOT NULL ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     created INT DEFAULT EXTRACT(EPOCH FROM CURRENT_TIMESTAMP),
     data BYTEA CHECK (LENGTH(data) < 100000)
 )
