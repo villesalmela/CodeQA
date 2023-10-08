@@ -2,9 +2,11 @@ from qcl import app
 from qcl.utils import code_format, fileops
 from qcl.integrations import gpt, linter, testrunner
 from qcl.models.user import User
+from qcl.models import user as user_module
 from qcl.models import function
 from qcl.views.forms import SignupForm, LoginForm, EmailVerificationForm, CodeForm, DocForm, TestForm, ClassifyForm
 from qcl.models.session import server_session
+from datetime import datetime
 
 from flask import render_template, request, redirect, url_for, g, abort, make_response, session as client_session
 from functools import wraps
@@ -454,7 +456,11 @@ def list_functions():
 @app.route("/user_management", methods=["GET"])
 @needs_admin
 def user_management():
-    pass
+    data = user_module.list_users()
+    data = [row._asdict() for row in data]
+    for item in data:
+        item["created"] = datetime.fromtimestamp(item["created"]).strftime('%Y-%m-%d %H:%M:%S')
+    return render_template("user_management.html.j2", data=data)
 
 @app.route("/delete_user/<string:user_id>", methods=["POST"])
 @needs_user
