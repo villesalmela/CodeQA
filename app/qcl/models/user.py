@@ -252,4 +252,17 @@ class User:
             dbrunner.execute(query, params)
         except Exception as e:
             raise RuntimeError("Failed to demote admin") from e
+        
+    def count_active_sessions(self) -> int:
+        query = "SELECT COUNT(*) FROM sessions WHERE user_id=:user_id AND created > :time_filter"
+
+        time_filter = general.get_time_seconds_ago(SESSION_MAX_LIFETIME)
+        params = {"user_id": self.id, "time_filter": time_filter}
+        try:
+            result = dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to read active sessions") from e
+        
+        row = result.first()
+        return row[0]
     

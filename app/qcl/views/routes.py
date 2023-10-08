@@ -516,6 +516,7 @@ def user(user_id: str):
     user_functions = function.list_functions_by_user(user_id)
     try:
         user = User(user_id=user_id)
+        count_active_sessions = user.count_active_sessions()
     except ValueError:
         message = "User does not exist"
         public_message = f"Failed to view user" # public message is always same, to prevent user enumeration
@@ -525,4 +526,4 @@ def user(user_id: str):
         message = f"Failed to view user"
         app.logger.exception(message)
         abort(500, message)
-    return render_template("user.html.j2", user=user, data=user_functions)
+    return render_template("user.html.j2", user=user, count_active_sessions=count_active_sessions, data=user_functions)

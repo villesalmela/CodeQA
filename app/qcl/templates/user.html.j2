@@ -6,6 +6,7 @@
 <p>Status: {{ "disabled" if user.disabled else "enabled" }}</p>
 <p>Email: {{ "verified" if user.verified else "unverified" }}</p>
 <p>Suspended: {{ "yes" if user.locked else "no" }}</p>
+<p>Active sessions: {{ count_active_sessions }}</p>
 
 <h2>Management</h2>
 {% if user.disabled %}
