@@ -504,5 +504,21 @@ def edit_user(action: str, user_id: str):
     
     # otherwise
     else:
-        return redirect(url_for("user_managament"))
+        return redirect(url_for(f"user", user_id=user_id))
     
+@app.route("/user/<string:user_id>", methods=["GET"])
+@needs_admin
+def user(user_id: str):
+    user_functions = function.list_functions_by_user(user_id)
+    try:
+        user = User(user_id=user_id)
+    except ValueError:
+        message = "User does not exist"
+        public_message = f"Failed to view user" # public message is always same, to prevent user enumeration
+        app.logger.error(message)
+        abort(500, public_message)
+    except Exception:
+        message = f"Failed to view user"
+        app.logger.exception(message)
+        abort(500, message)
+    return render_template("user.html.j2", username=user.name, data=user_functions)

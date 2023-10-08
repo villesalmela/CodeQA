@@ -1,0 +1,24 @@
+{% extends 'base.html.j2' %}
+{% block title %}Code QA{% endblock %}
+{% block body %}
+<h1>User: {{ username }}</h1>
+ <table>
+        <thead>
+            <tr>
+                <th>name</th>
+                <th>usecase</th>
+                <th>keywords</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in data %}
+                <tr>
+                    <td><a href="/function/{{ item.function_id }}">{{ item.name }}</a></td>
+                    <td>{{ item.usecase }}</td>
+                    <td>{{ item.keywords }}</td>
+
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
