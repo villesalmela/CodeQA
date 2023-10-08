@@ -4,6 +4,7 @@ from qcl.utils import log, general, dbrunner, auth
 from qcl.integrations import email
 from qcl import app
 from sqlalchemy.engine import Row
+from qcl.models.session import SESSION_MAX_LIFETIME
 
 
 def new_users_count_total() -> int:
@@ -36,18 +37,22 @@ def new_users_count_ip(remote_ip: str) -> int:
 
 def list_users() -> list[Row]:
     query = """
-        SELECT u.user_id as user_id, u.username as username, u.admin as admin, \
-            u.verified as verified, u.disabled as disabled, u.created as created, \
-            u.locked as locked, s.sessions as sessions, f.functions as functions \
+        SELECT u.user_id as user_id, u.username as username, u.admin as admin,
+            u.verified as verified, u.disabled as disabled, u.created as created,
+            u.locked as locked, s.sessions as sessions, f.functions as functions
         FROM users AS u
-        INNER JOIN (
-            SELECT user_id, COUNT(*) as sessions FROM sessions GROUP BY user_id
+        LEFT JOIN (
+            SELECT user_id, COUNT(*) as sessions FROM sessions
+            WHERE created > :time_filter
+            GROUP BY user_id
         ) AS s ON s.user_id = u.user_id
-        INNER JOIN (
+        LEFT JOIN (
             SELECT user_id, COUNT(*) as functions FROM functions GROUP BY user_id
         ) AS f ON f.user_id = u.user_id
         """
-    result = dbrunner.execute(query)
+    time_filter = general.get_time_seconds_ago(SESSION_MAX_LIFETIME)
+    params = {"time_filter": time_filter}
+    result = dbrunner.execute(query, params)
     rows = result.all()
     return rows
 
