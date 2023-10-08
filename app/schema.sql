@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS account_events (
 
 CREATE TABLE IF NOT EXISTS functions (
     function_id SERIAL PRIMARY KEY,
-    user_id UUID REFERENCES users(user_id) NOT NULL ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     name TEXT UNIQUE NOT NULL,
     code TEXT NOT NULL,
     tests TEXT NOT NULL,
