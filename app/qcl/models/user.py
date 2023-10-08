@@ -182,3 +182,67 @@ class User:
             dbrunner.execute(query, params)
         except Exception as e:
             raise RuntimeError("Failed to delete user") from e
+        
+    def disable(self) -> None:
+        app.logger.debug("Disabling user")
+        query = "UPDATE users SET disabled=TRUE WHERE user_id=:user_id"
+        params = {"user_id": self.id}
+        try:
+            dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to disable user") from e
+        
+    def enable(self) -> None:
+        app.logger.debug("Enabling user")
+        query = "UPDATE users SET disabled=FALSE WHERE user_id=:user_id"
+        params = {"user_id": self.id}
+        try:
+            dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to enable user") from e
+        
+    def lock(self) -> None:
+        app.logger.debug("Locking user")
+        query = "UPDATE users SET locked=EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) WHERE user_id=:user_id"
+        params = {"user_id": self.id}
+        try:
+            dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to lock user") from e
+        
+    def unlock(self) -> None:
+        app.logger.debug("Unlocking user")
+        query = "UPDATE users SET disabled=NULL WHERE user_id=:user_id"
+        params = {"user_id": self.id}
+        try:
+            dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to unlock user") from e
+        
+    def logout(self) -> None:
+        app.logger.debug("Logging out user")
+        query = "DELETE FROM sessions WHERE user_id=:user_id"
+        params = {"user_id": self.id}
+        try:
+            dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to logout user") from e
+        
+    def promote(self) -> None:
+        app.logger.debug("Promoting user to admin")
+        query = "UPDATE users SET admin=TRUE WHERE user_id=:user_id"
+        params = {"user_id": self.id}
+        try:
+            dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to promote user") from e
+        
+    def demote(self) -> None:
+        app.logger.debug("Demoting admin to user")
+        query = "UPDATE users SET admin=FALSE WHERE user_id=:user_id"
+        params = {"user_id": self.id}
+        try:
+            dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to demote admin") from e
+    
