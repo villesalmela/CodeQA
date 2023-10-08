@@ -15,8 +15,12 @@
             <li><a href="/">Home Page</a></li>
             <li><a href="/functions">Add New Function</a></li>
             <li><a href="/functions">Browse Functions</a></li>
+            {% if user_role == "admin" %}
+            <li><a href="/user_management">User Management</a></li>
+            {% endif %}
             <li><a href="/logout">Log Out</a></li>
         </ul>
+        {% if username %}<p>Logged in as: {{ username }}</p>{% endif %}
     </nav>
     {% block body %}{% endblock %}
 </body>
