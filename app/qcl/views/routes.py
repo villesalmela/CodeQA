@@ -33,6 +33,15 @@ def needs_admin(func):
         return func(*args, **kwargs)
     return wrapper
 
+### CONTEXT HANDLING
+@app.context_processor
+def role_context():
+    return {'user_role': getattr(g.get('user'), "role", None)}
+
+@app.context_processor
+def user_context():
+    return {'username': getattr(g.get('user'), "name", None)}
+
 ### SESSION HANDLING
 @app.before_request
 def pre_request():
