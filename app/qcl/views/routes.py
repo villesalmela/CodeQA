@@ -462,31 +462,43 @@ def user_management():
         item["created"] = datetime.fromtimestamp(item["created"]).strftime('%Y-%m-%d %H:%M:%S')
     return render_template("user_management.html.j2", data=data)
 
-@app.route("/delete_user/<string:user_id>", methods=["POST"])
-@needs_user
-def delete_user(user_id: str):
-    if not (user_id == g.user.id or g.user.role == "admin"):
-        abort(403, "Not authorized to delete other users.")
+@app.route("/edit_user/<string:action>/<string:user_id>", methods=["POST"])
+@needs_admin
+def edit_user(action: str, user_id: str):
     try:
         user = User(user_id=user_id)
-        user.delete()
+        match action:
+            case "delete":
+                func = user.delete
+            case "disable":
+                func = user.disable
+            case "enable":
+                func = user.enable
+            case "lock":
+                func = user.lock
+            case "unlock":
+                func = user.unlock
+            case "logout":
+                func = user.logout
+            case _:
+                abort(400, "Bad action")
+        func()
     except ValueError:
         message = "User does not exist"
-        public_message = "Failed to delete user" # public message is always same, to prevent user enumeration
+        public_message = f"Failed to {action} user" # public message is always same, to prevent user enumeration
         app.logger.error(message)
         abort(500, public_message)
     except Exception:
-        message = "Failed to delete user"
+        message = f"Failed to {action} user"
         app.logger.exception(message)
         abort(500, message)
     
-    # deleting own user
-    if user_id == g.user.id:
+    # invalidating own access
+    if user_id == g.user.id and action in ["delete", "disable", "lock", "logout"]:
         del client_session["session_id"]
         return redirect(url_for("index"))
     
-    # deleting someone else
+    # otherwise
     else:
         return redirect(url_for("user_managament"))
-
-
+    
