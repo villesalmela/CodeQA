@@ -480,6 +480,10 @@ def edit_user(action: str, user_id: str):
                 func = user.unlock
             case "logout":
                 func = user.logout
+            case "promote":
+                func = user.promote
+            case "demote":
+                func = user.demote
             case _:
                 abort(400, "Bad action")
         func()
