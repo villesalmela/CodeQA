@@ -16,6 +16,11 @@ def get_time_minutes_ago(minutes: int) -> int:
 
     return int(time.time()) - (minutes * 60)
 
+def get_time_seconds_ago(seconds: int) -> int:
+    "Get time X seconds ago, unix format"
+
+    return int(time.time()) - seconds
+
 def get_remote_ip() -> str:
     "Get the IP addres of the latest request."
 
