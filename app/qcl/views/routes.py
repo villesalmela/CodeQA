@@ -423,7 +423,7 @@ def delete_function(function_id: int):
         app.logger.warning(message)
         abort(403, message)
     
-@app.route("/functions/<int:function_id>", methods=["GET"])
+@app.route("/function/<int:function_id>", methods=["GET"])
 @needs_user
 def view_function(function_id):
     try:
