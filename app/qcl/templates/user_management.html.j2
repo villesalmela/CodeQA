@@ -1,0 +1,35 @@
+{% extends 'base.html.j2' %}
+{% block title %}Code QA{% endblock %}
+{% block body %}
+<h1>User Management</h1>
+ <table>
+        <thead>
+            <tr>
+                <th>user_id</th>
+                <th>username</th>
+                <th>admin</th>
+                <th>verified</th>
+                <th>disabled</th>
+                <th>created</th>
+                <th>locked</th>
+                <th>sessions</th>
+                <th>functions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in data %}
+                <tr>
+                    <td>{{ item.user_id }}</td>
+                    <td>{{ item.username }}</td>
+                    <td>{{ item.admin }}</td>
+                    <td>{{ item.verified }}</td>
+                    <td>{{ item.disabled }}</td>
+                    <td>{{ item.created }}</td>
+                    <td>{{ item.locked if item.locked is not none else 'N/A' }}</td>
+                    <td>{{ item.sessions }}</td>
+                    <td>{{ item.functions }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
