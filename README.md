@@ -92,29 +92,24 @@ The application supports users in documentation and quality control of their fun
 | CWE-307: Improper Restriction of Excessive Authentication Attempts                           | Reject remote IP after certain number of failed authentication attempts                  | Todo   |
 | CWE-384: Session Fixation                                                                    | Generate a new random session_id on server-side for every new session                    | Done   |
 | CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') | Use Flask’s template rendering, which escapes HTML and Javascript. Quote all attributes. | Todo   |
-| CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') | Setup Content Security Policy (CSP)                                                      | Todo   |
+| CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') | Setup Content Security Policy (CSP)                                                      | Done   |
 | CWE-352: Cross-Site Request Forgery (CSRF)                                                   | Use CSRF-tokens in POST requests.                                                        | Done   |
 | CWE-352: Cross-Site Request Forgery (CSRF)                                                   | Do not use GET requests for triggering any changes.                                      | Done   |
 | CWE-89: Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection') | Use parameterization to separate data and code.                                          | Done   |
 | CWE-798: Use of Hard-coded Credentials                                                       | Read all secrets from environment variables.                                             | Done   |
+| CWE-1021: Improper Restriction of Rendered UI Layers or Frames                               | Use X-Frame-Options header to disallow rendering the app in a frame                      | Done   |
 
 ## Status 1
 ### Operational functionalities
 - Users can create new accounts using their email as username
+    - Access to the email is verified with verification code
 - Users can save new functions to the library
     - Linting with pylint
     - Automated documentation using OpenAI API
     - Automated generation of unit tests using OpenAI API
     - Automated execution of unit tests using AWS Lambda
     - Automated keyword classification using OpenAI API
-- Users can browse (not search) functions saved by other people
-
-### TODO
-- Type checking using mypy
-- Security checking using bandit
-- Search and rating functionality
-- User and library management functionality
-- Improve user interface and visuals
+- Users can browse functions saved by other people
 
 ## Status 2
 ### New operational functionalities (since status 1)
@@ -128,17 +123,33 @@ The application supports users in documentation and quality control of their fun
     - delete users (along with all their data)
 - Users can delete their own functions from the library
 - Admins can delete any functions from the library
-
-### New structure (since status 1)
-- Changed to using server-side session
 - Added navigation bar
-- Added indicator which display logged in user
+- Added indicator that displays currently logged in user
+
+### New back-end features (since status 1)
+- Changed to using server-side session
+    - Logout now permanently invalidates session
+    - Server can invalidate sessions without client cooperation
+    - Client can no longer read its session data, just a session ID
 - Increased security by controlling headers with Flask-Talisman
+    - Content Security Policy (CSP)
+    - HTTP Strict Transport Security (HSTS)
+    - Refuse to send cookies over HTTP
+    - Deny Javascript access to cookies
+    - Disallow rendering page in a frame
+    - Disable MIME type sniffing
+    - Disallow sending cookie on cross-site requests (SameSite=Strict)
 - Configured and instructed usage of Development Containers extension for VSCode
 
 ### New documentation (since status 1)
 - Started listing security considerations on README
 - Added description of database schema on README
+
+### TODO
+- Add more static checkers (mypy, bandit)
+- Implement search and rating functionality
+- Improve user interface
+- Address security considerations
 
 ## Testing
 Application is packaged into docker container using Github Action, and uploaded to AWS ECR by the pipeline.
@@ -147,23 +158,37 @@ AWS AppRunner is serving the app, which is available at https://codeqa.online
 To create an account, you need to use your university email address.
 
 Test accounts are available:
+
+Normal user:
 - username: testuser@villesalmela.fi
 - password: password
 
-
+Administrator:
 - username: testadmin@villesalmela.fi
 - password: password
 
 Please don't delete or disable admin account, you currently can't make more of them without direct DB access.
 
-
-One test function was saved to the library using this input:
+Couple of test functions were saved to the library using these inputs:
 ```python
 def celsius_to_fahrenheit(celsius):
     fahrenheit = (9/5) * celsius + 32
     return fahrenheit
 ```
-Feel free to try the process with that one, or come up with something else.
+
+```python
+def factorial(n):
+    if not isinstance(n, int):
+        raise TypeError("Input must be an integer.")
+    if n < 0:
+        raise ValueError("Input must be a non-negative integer.")
+    if n == 0:
+        return 1
+    else:
+        return n * factorial(n-1)
+```
+
+Feel free to try the process with these ones, or come up with something else.
 
 ### Local Testing
 While you can run the web app and database locally, some components don't currently have local options.
