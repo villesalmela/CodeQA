@@ -98,6 +98,10 @@ The application supports users in documentation and quality control of their fun
 | CWE-89: Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection') | Use parameterization to separate data and code.                                          | Done   |
 | CWE-798: Use of Hard-coded Credentials                                                       | Read all secrets from environment variables.                                             | Done   |
 | CWE-1021: Improper Restriction of Rendered UI Layers or Frames                               | Use X-Frame-Options header to disallow rendering the app in a frame                      | Done   |
+| CWE-614: Sensitive Cookie in HTTPS Session Without 'Secure' Attribute                        | Set the secure attribute to cookies                                                      | Done   |
+| CWE-757: Selection of Less-Secure Algorithm During Negotiation ('Algorithm Downgrade')       | Set HTTP Strict Transport Security (HSTS) headers                                        | Done   |
+| CWE-778: Insufficient Logging                                                                | Identify security critical events and needed details and log them                        | Todo   |
+| CWE-308: Use of Single-factor Authentication                                                 | Use multi-factor authentication                                                          | Todo   |
 
 ## Status 1
 ### Operational functionalities
