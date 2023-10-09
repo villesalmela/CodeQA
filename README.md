@@ -102,6 +102,13 @@ The application supports users in documentation and quality control of their fun
 | CWE-757: Selection of Less-Secure Algorithm During Negotiation ('Algorithm Downgrade')       | Set HTTP Strict Transport Security (HSTS) headers                                        | Done   |
 | CWE-778: Insufficient Logging                                                                | Identify security critical events and needed details and log them                        | Todo   |
 | CWE-308: Use of Single-factor Authentication                                                 | Use multi-factor authentication                                                          | Todo   |
+| CWE-759: Use of a One-Way Hash without a Salt                                                | Use salt when hashing passwords                                                          | Done   |
+| CWE-760: Use of a One-Way Hash with a Predictable Salt                                       | Use unpredictable salt                                                                   | Done   |
+| CWE-602: Client-Side Enforcement of Server-Side Security                                     | Double-check client side validations on server side.                                     | Done   |
+| CWE-829: Inclusion of Functionality from Untrusted Control Sphere                            | Run untrusted code in a sandbox environment                                              | Done   |
+| CWE-829: Inclusion of Functionality from Untrusted Control Sphere                            | Force capability restrictions on untrusted code                                          | Done   |
+| CWE-250: Execution with Unnecessary Privileges                                               | Execute untrusted code with minimum privileges                                           | Done   |
+| CWE-400: Uncontrolled Resource Consumption                                                   | Force resource usage limits on untrusted code                                            | Done   |
 
 ## Status 1
 ### Operational functionalities
