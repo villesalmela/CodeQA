@@ -23,6 +23,9 @@
     Feel free to further improve the result, before clicking 'Next'.
 </p>
 {% include 'error_form.html.j2' %}
+{% if error %}
+<p class="error-message">{{ error }}</p>
+{% endif %}
 <form method="POST" action="/doc">
     {{ form.csrf_token }}
     <label for="editor_box_code">Source Code</label><br>

@@ -269,9 +269,16 @@ def add():
     elif request.method == "POST":
         if form.validate(): #data ok
             source_code = form.code.data
-            server_session["source_code"] = source_code
 
+            
             if form.lint.data: # clicked run linting
+                try:
+                    code_format.check_function_only(source_code)
+                    server_session["source_code"] = source_code
+                except SyntaxError as e:
+                    error = str(e)
+                    return render_template("add.html.j2", form=form, error=error)
+                
                 filename = fileops.create_tempfile(source_code)
                 try:
                     lint_result = linter.run_pylint(filename)
@@ -280,6 +287,12 @@ def add():
                 return render_template("add.html.j2", form=form, lint_result=lint_result)
             
             elif form.doc.data: # clicked next
+                try:
+                    code_format.check_function_only(source_code)
+                    server_session["source_code"] = source_code
+                except SyntaxError as e:
+                    error = str(e)
+                    return render_template("add.html.j2", form=form, error=error)
                 return redirect(url_for("doc"))
             
             else: # unexpected submit
@@ -303,18 +316,34 @@ def doc():
         if form.generate.data: # clicked generate tests
             # TODO: validate source code
             try:
-                documented = gpt.process_code(form.code.data, mode="doc")
+                documented = gpt.enhance_code(form.code.data, mode="doc")
+                error = False
+            except ValueError:
+                error = "Your source code was rejected."
+                app.logger.warning(error)
+                documented = ""
+            except SyntaxError as e:
+                error = str(e)
+                documented = ""    
             except Exception:
-                message = "Failed to generate code documentation"
-                app.logger.error(message)
-                documented = message
+                error = "Failed to generate code documentation."
+                app.logger.error(error)
+                documented = ""
             form.documented.data = documented
-            return render_template("doc.html.j2", form=form)
+            return render_template("doc.html.j2", form=form, error=error)
 
         elif form.next.data: # clicked next
             if form.validate(): # data ok
-                server_session["source_code"] = form.code.data
-                server_session["source_code_documented"] = form.documented.data
+                code = form.code.data
+                documented = form.documented.data
+                try:
+                    code_format.check_function_only(code)
+                    code_format.check_function_only(documented)
+                except SyntaxError as e:
+                    error = str(e)
+                    return render_template("doc.html.j2", form=form, error=error)
+                server_session["source_code"] = code
+                server_session["source_code_documented"] = documented
                 return redirect(url_for("test"))
             else: # data not ok
                 return render_template("doc.html.j2", form=form)
@@ -335,26 +364,51 @@ def test():
     if request.method == "POST":
         if form.generate.data: # clicked generate tests
             try:
-                unittests = gpt.process_code(form.documented.data, mode="test")
+                unittests = gpt.enhance_code(form.documented.data, mode="test")
+                error = False
+            except ValueError:
+                error = "Your source code was rejected."
+                app.logger.warning(error)
+                unittests = ""
+            except SyntaxError as e:
+                error = str(e)
+                unittests = ""
             except Exception:
-                message = "Failed to generate unit tests"
-                app.logger.error(message)
-                unittests = message
+                error = "Failed to generate unit tests"
+                app.logger.error(error)
+                unittests = ""
             form.unittests.data = unittests
-            return render_template("test.html.j2", form=form)
+            return render_template("test.html.j2", form=form, error=error)
         elif form.run.data: # clicked run tests
+            documented = form.documented.data
+            unittests = form.unittests.data
             try:
-                results = testrunner.execute(func=form.documented.data, test=form.unittests.data)
+                code_format.check_function_only(documented)
+                code_format.check_unittest(unittests)
+            except SyntaxError as e:
+                error = str(e)
+                return render_template("test.html.j2", form=form, error=error)
+            try:
+                results = testrunner.execute(func=documented, test=unittests)
+                results = json.dumps(results, indent=4)
+                error = False
             except Exception:
-                message = "Failed to run unit tests"
-                app.logger.exception(message)
-                results = {"Error": message}
-            results = json.dumps(results, indent=4)
-            return render_template("test.html.j2", form=form, results=results)
+                error = "Failed to run unit tests"
+                app.logger.exception(error)
+                results = ""
+            return render_template("test.html.j2", form=form, results=results, error=error)
         elif form.next.data: # clicked next
             if form.validate(): # data ok
-                server_session["source_code_documented"] = form.documented.data
-                server_session["source_code_unittests"] = form.unittests.data
+                documented = form.documented.data
+                unittests = form.unittests.data
+                try:
+                    code_format.check_function_only(documented)
+                    code_format.check_unittest(unittests)
+                except SyntaxError as e:
+                    error = str(e)
+                    return render_template("test.html.j2", form=form, error=error)
+                server_session["source_code_documented"] = documented
+                server_session["source_code_unittests"] = unittests
                 return redirect(url_for("classify"))
             else: # data not ok
                 return render_template("test.html.j2", form=form)
@@ -378,29 +432,35 @@ def classify():
     if request.method == "POST":
         if form.generate.data: # clicked generate keywords
             try:
-                keywords = set(gpt.process_code(server_session["source_code_documented"], mode="classify"))
+                keywords = gpt.classify_code(server_session["source_code_documented"])
+                keywords_str = ", ".join(keywords)
+                error = False
             except Exception:
-                message = "Failed to generate keywords"
-                app.logger.exception(message)
-                keywords = {"error"}
-            keywords_str = str(keywords).strip("}{")
+                error = "Failed to generate keywords"
+                app.logger.exception(error)
+                keywords_str = ""
             form.keywords.data = keywords_str
-            return render_template("classify.html.j2", form=form)
+            return render_template("classify.html.j2", form=form, error=error)
         elif form.save.data: # clicked save
             if form.validate(): # data ok
                 keywords = {x.strip() for x in form.keywords.data.split(",")}
-                keywords = str(keywords).strip("}{")
+                keywords_str = ", ".join(keywords)
                 name = form.name.data
                 usecase = form.usecase.data
                 code = server_session["source_code_documented"]
                 tests = server_session["source_code_unittests"]
                 user_id = g.user.id
                 try:
-                    function_id = function.save_function(code, tests, keywords, usecase, name, user_id)
+                    gpt.check_code(code, mode="func")
+                    gpt.check_code(tests, mode="unit")
+                    function_id = function.save_function(code, tests, keywords_str, usecase, name, user_id)
+                except ValueError:
+                    error = "Your source code was rejected"
+                    return render_template("classify.html.j2", form=form, error=error)
                 except Exception:
-                    message = "Failed to save function"
-                    app.logger.exception(message)
-                    abort(500, message)
+                    error = "Failed to save function"
+                    app.logger.exception(error)
+                    return render_template("classify.html.j2", form=form, error=error)
 
                 # clear saved function data from session
                 for arg in ["source_code", "source_code_documented", "source_code_unittests"]:

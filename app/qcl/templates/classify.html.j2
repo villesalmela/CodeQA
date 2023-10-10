@@ -14,6 +14,9 @@
     automatically generate a list of relevant keywords for you. You can modify the results before saving the function.
 </p>
 {% include 'error_form.html.j2' %}
+{% if error %}
+<p class="error-message">{{ error }}</p>
+{% endif %}
 <form method="POST" action="/classify">
     {{ form.csrf_token }}
     <div>{{ form.name.label }} <br> {{ form.name }}</div>

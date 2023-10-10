@@ -6,3 +6,8 @@
 .error-message {
     color: red;
 }
+
+.subtitle {
+    font-size: 20px;
+    font-weight: bold;
+}
