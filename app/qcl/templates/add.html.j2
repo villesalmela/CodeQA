@@ -24,7 +24,8 @@
 {% if error %}
 <p class="error-message">{{ error }}</p>
 {% endif %}
-<form method="POST" action="/add">
+{% include 'spinner.html.j2' %}
+<form id="form" method="POST" action="/add">
     {{ form.csrf_token }}
     <label for="editor_box" class="subtitle">Source Code</label><br>
     <div id="editor_box" class="editor-box"></div>
@@ -40,9 +41,13 @@
     editor.setHighlightActiveLine(false);
     editor.clearSelection()
 
-    // add editor content to form when it is submitted
     document.querySelector('form').addEventListener('submit', function () {
+        // add editor content to form when it is submitted
         document.getElementById('code').value = editor.getValue();
+
+        // set a spinner until page reload
+        setSpinner()
+
     });
 </script>
 {% if lint_result is defined %}

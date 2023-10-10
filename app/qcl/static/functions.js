@@ -98,3 +98,23 @@ function parse_lint_results() {
 
     return annotations;
 }
+
+// sets a spinner on top a form, which is displayed after the form is submitted, until page reloads
+function setSpinner() {
+    // get the form dimensions
+    const form = document.getElementById("form");
+    const rect = form.getBoundingClientRect();
+    
+    // set the overlay to match dimensions
+    const overlay = document.getElementById("loadingOverlay");
+    overlay.style.width = rect.width + "px";
+    overlay.style.height = rect.height  + "px";
+    overlay.style.top = rect.top + "px";
+    overlay.style.left = rect.left + "px";
+
+    // display the overlay
+    overlay.style.display = "block";
+    
+    // display the spinner
+    document.getElementById("spinner").style.display = "block";
+}
