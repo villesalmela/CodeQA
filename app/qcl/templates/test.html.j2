@@ -26,7 +26,8 @@
 {% if error %}
 <p class="error-message">{{ error }}</p>
 {% endif %}
-<form method="POST" action="/test">
+{% include 'spinner.html.j2' %}
+<form id="form" method="POST" action="/test">
     {{ form.csrf_token }}
     <label for="editor_box_documented">Source Code (Documented)</label><br>
     <div id="editor_box_documented" class="editor-box"></div>
@@ -53,9 +54,12 @@
     editor_documented.setHighlightActiveLine(false);
     editor_documented.clearSelection()
 
-    // add editor content to form when it is submitted
     document.querySelector('form').addEventListener('submit', function () {
+        // add editor content to form when it is submitted
         document.getElementById('documented').value = editor_documented.getValue();
+
+        // set a spinner until page reload
+        setSpinner()
     });
 
     var editor_unittests = ace.edit("editor_box_unittests");

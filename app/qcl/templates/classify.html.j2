@@ -1,4 +1,7 @@
 {% extends 'base.html.j2' %}
+{% block head%}
+<script src="/static/functions.js"></script>
+{% endblock %}
 {% block title %}Code QA{% endblock %}
 {% block body %}
 <h1>Name and Classify your function</h1>
@@ -17,7 +20,8 @@
 {% if error %}
 <p class="error-message">{{ error }}</p>
 {% endif %}
-<form method="POST" action="/classify">
+{% include 'spinner.html.j2' %}
+<form id="form" method="POST" action="/classify">
     {{ form.csrf_token }}
     <div>{{ form.name.label }} <br> {{ form.name }}</div>
     <div>{{ form.usecase.label }} <br> {{ form.usecase }}</div>
@@ -25,4 +29,12 @@
     {{ form.generate }}
     {{ form.save }}
 </form>
+<script nonce="{{ csp_nonce() }}">
+    document.querySelector('form').addEventListener('submit', function () {
+        
+        // set a spinner until page reload
+        setSpinner()
+
+    });
+</script>
 {% endblock %}
