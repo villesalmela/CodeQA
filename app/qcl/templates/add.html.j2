@@ -23,7 +23,7 @@
 {% include 'error_form.html.j2' %}
 <form method="POST" action="/add">
     {{ form.csrf_token }}
-    <label for="editor_box">Source Code</label><br>
+    <label for="editor_box" class="subtitle">Source Code</label><br>
     <div id="editor_box" class="editor-box"></div>
     <input type="hidden" id="code" name="code">
     {{ form.lint }} {{ form.doc }}
@@ -45,15 +45,15 @@
 {% if lint_result is defined %}
 <h2>Linting Results</h2>
 {% if lint_result|length > 0 %}
-<p>You can click on a row to highlight the relevant part in code window. Feel free to make adjustments and run the
-    linting again.</p>
+<p>Click on a row to highlight the relevant part in code window. Click on an ID number to view more details about the issue.
+Feel free to make adjustments in the source code and run the linting again.</p>
 <table id="lint-results">
     <thead>
         <tr>
             <th>Type</th>
             <th>Object</th>
             <th>Message</th>
-            <th>Description</th>
+            <th>ID</th>
             <th>Line</th>
             <th hidden>Startcolumn</th>
             <th hidden>Endline</th>
@@ -66,7 +66,7 @@
             <td>{{ item.type }}</td>
             <td>{{ item.obj }}</td>
             <td>{{ item.message }}</td>
-            <td>{{ item.description }}</td>
+            <td><a href="{{ item.link }}" >{{ item["message-id"] }}</a></td>
             <td>{{ item.line }}</td>
             <td hidden>{{ item.column }}</td>
             <td hidden>{{ item.endLine }}</td>
@@ -93,7 +93,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
-<label for="lint_box">Output: linting</label>
 <div id="lint_box" class="editor-box"></div>
 <script nonce="{{ csp_nonce() }}">
     var lint_obj = ace.edit("lint_box");
