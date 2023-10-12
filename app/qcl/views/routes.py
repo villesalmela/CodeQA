@@ -6,7 +6,6 @@ from qcl.models import user as user_module
 from qcl.models import function
 from qcl.views.forms import SignupForm, LoginForm, EmailVerificationForm, CodeForm, DocForm, TestForm, ClassifyForm
 from qcl.models.session import server_session
-from datetime import datetime
 
 from flask import render_template, request, redirect, url_for, g, abort, make_response, session as client_session
 from functools import wraps
@@ -526,9 +525,6 @@ def list_functions():
 @needs_admin
 def user_management():
     data = user_module.list_users()
-    data = [row._asdict() for row in data]
-    for item in data:
-        item["created"] = datetime.fromtimestamp(item["created"]).strftime('%Y-%m-%d %H:%M:%S')
     return render_template("user_management.html.j2", data=data)
 
 @app.route("/edit_user/<string:action>/<string:user_id>", methods=["POST"])
