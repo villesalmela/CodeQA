@@ -1,19 +1,15 @@
 {% extends 'base.html.j2' %}
 {% block head %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.28.0/ace.js"
-    integrity="sha512-ZxGMf7jYJjId6DxujolfBm1Fgk3eNuujx2bg1oFB6jlXhj33BR47Pnh4wLRhvdCpwoWCKP23sdLQPrIBlTEFKA=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+{% include 'load_ace.html' %}
+{% include 'load_datatables.html' %}
 <script src="/static/functions.js"></script>
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='syntax.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ace/ace.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ace/theme/monokai.css') }}">
 {% endblock %}
 {% block title %}Code QA{% endblock %}
 {% block body %}
 <h1>Add new function</h1>
 <nav class="trail">
     <ul>
-        <li><strong>Lint</strong></li>
+        <li><strong>Check</strong></li>
         <li>Document</li>
         <li>Test</li>
         <li>Classify</li>
@@ -24,7 +20,6 @@
 {% if error %}
 <p class="error-message">{{ error }}</p>
 {% endif %}
-{% include 'spinner.html.j2' %}
 <form id="form" method="POST" action="/add">
     {{ form.csrf_token }}
     <label for="editor_box" class="subtitle">Source Code</label><br>
@@ -33,29 +28,16 @@
     {{ form.lint }} {{ form.doc }}
 </form>
 <script nonce="{{ csp_nonce() }}">
-    ace.config.set("useStrictCSP", true);
-    var editor = ace.edit("editor_box");
-    editor.setTheme("ace/theme/monokai");
-    editor.getSession().setMode("ace/mode/python");
-    editor.setValue({{ form.code.data | tojson | safe }});
-    editor.setHighlightActiveLine(false);
-    editor.clearSelection()
-
-    document.querySelector('form').addEventListener('submit', function () {
-        // add editor content to form when it is submitted
-        document.getElementById('code').value = editor.getValue();
-
-        // set a spinner until page reload
-        setSpinner()
-
-    });
+    setSpinner("form")
+    addEditor("editor_box", {{ form.code.data | tojson }}, "code")
 </script>
 {% if lint_result is defined %}
 <h2>Linting Results</h2>
 {% if lint_result|length > 0 %}
-<p>Click on a row to highlight the relevant part in code window. Click on an ID number to view more details about the issue.
-Feel free to make adjustments in the source code and run the linting again.</p>
-<table id="lint-results">
+<p>Click on a row to highlight the relevant part in code window. Click on an ID number to view more details about the
+    issue.
+    Feel free to make adjustments in the source code and run the linting again.</p>
+<table id="lint-results" class="hover">
     <thead>
         <tr>
             <th>Type</th>
@@ -74,7 +56,7 @@ Feel free to make adjustments in the source code and run the linting again.</p>
             <td>{{ item.type }}</td>
             <td>{{ item.obj }}</td>
             <td>{{ item.message }}</td>
-            <td><a href="{{ item.link }}" >{{ item["message-id"] }}</a></td>
+            <td><a href="{{ item.link }}">{{ item["message-id"] }}</a></td>
             <td>{{ item.line }}</td>
             <td hidden>{{ item.column }}</td>
             <td hidden>{{ item.endLine }}</td>
@@ -84,34 +66,24 @@ Feel free to make adjustments in the source code and run the linting again.</p>
     </tbody>
 </table>
 <script nonce="{{ csp_nonce() }}">
-// handle highlighting rows in code, based on user clicking rows on results table
-document.addEventListener("DOMContentLoaded", function() {
+    // highlight code when related row is clicked
+    addRowHandler("lint-results", pylintRowClicked)
     
-    // the results table
-    const table = document.getElementById("lint-results");
-
-    // the table
-    table.addEventListener("click", function(event) {
-        
-        // the row which was clicked
-        let row = event.target.closest('tr');
-
-        // do highlighting
-        pylintRowClicked(row);
+    // apply datatables script to linting results
+    jQuery(document).ready(function () {
+        jQuery('#lint-results').DataTable({
+            hover: true
+        });
     });
-});
 </script>
+
+
 <div id="lint_box" class="editor-box"></div>
 <script nonce="{{ csp_nonce() }}">
-    var lint_obj = ace.edit("lint_box");
-    lint_obj.setTheme("ace/theme/monokai");
-    lint_obj.getSession().setMode("ace/mode/python");
-    lint_obj.setValue({{ form.code.data | tojson | safe }});
-    lint_obj.setHighlightActiveLine(false);
-    lint_obj.setReadOnly(true);
-    lint_obj.clearSelection()
-    lint_obj.session.setAnnotations(parse_lint_results());
+    // add editor box for linting results
+    addEditor("lint_box", {{ form.code.data | tojson }}, null, parse_lint_results())
 </script>
+
 {% else %}
 <p>No errors or warnings.</p>
 {% endif %}

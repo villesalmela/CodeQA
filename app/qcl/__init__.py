@@ -28,9 +28,13 @@ csp = {
     'default-src': '\'self\'',
     'script-src': [
         '\'self\'',
-        'https://cdnjs.cloudflare.com'
+        'https://cdnjs.cloudflare.com',
+        'https://cdn.datatables.net'
     ],
-    'style-src': '\'self\'',
+    'style-src': [
+        '\'self\'',
+        'https://cdn.datatables.net'
+        ],
 }
 
 # force HTTPS in production

@@ -13,23 +13,26 @@ function convert(str) {
     return num - 1;
 }
 
-// Variable to hold linting marker
-var marker_lint;
+// Variable to hold markers
+var marker_dict = {};
 
 // Remove highlight
-function unhighlightError() {
-    lint_obj.getSession().removeMarker(marker_lint);
+function unhighlightError(editor, key) {
+    editor.getSession().removeMarker(marker_dict[key]);
 }
 
 // Add highlight
-function highlightError(startline, endline, startcol, endcol) {
-    unhighlightError();
+function highlightError(editor, key, startline, endline, startcol, endcol) {
+    unhighlightError(editor, key);
     var Range = ace.require("ace/range").Range
-    marker_lint = lint_obj.session.addMarker(new Range(startline, startcol, endline, endcol), "line-highlight", "text");
+    marker_dict[key] = editor.session.addMarker(new Range(startline, startcol, endline, endcol), "line-highlight", "text");
 }
 
 // This function will highlight the corresponding row on code editor, when item on the linting results table is clicked.
 function pylintRowClicked(row) {
+
+    editor_container = document.getElementById("lint_box")
+    editor = ace.edit(editor_container)
 
     // get the relevant cells
     const cells = Array.from(row.cells);
@@ -56,8 +59,9 @@ function pylintRowClicked(row) {
         var startcol = 1;
     }
 
+    marker_key = 1
     // apparently null indexing on lines, but not on columns
-    highlightError(startline, endline, startcol + 1, endcol + 1);
+    highlightError(editor, marker_key, startline, endline, startcol + 1, endcol + 1);
 }
 
 // This function will parse linting results table, and extract messages and relevant code locations
@@ -100,21 +104,79 @@ function parse_lint_results() {
 }
 
 // sets a spinner on top a form, which is displayed after the form is submitted, until page reloads
-function setSpinner() {
-    // get the form dimensions
-    const form = document.getElementById("form");
-    const rect = form.getBoundingClientRect();
+function setSpinner(form_id) {
     
-    // set the overlay to match dimensions
-    const overlay = document.getElementById("loadingOverlay");
-    overlay.style.width = rect.width + "px";
-    overlay.style.height = rect.height  + "px";
-    overlay.style.top = rect.top + "px";
-    overlay.style.left = rect.left + "px";
+    // insert the overlay
+    var div_content = `
+        <div class="overlay" id="loadingOverlay">
+            <div class="spinner" id="spinner">
+            Loading...
+            </div>
+        </div>
+        `;
+    jQuery(form_id).before(div_content);
 
-    // display the overlay
-    overlay.style.display = "block";
-    
-    // display the spinner
-    document.getElementById("spinner").style.display = "block";
+    // add event listener
+    const form = document.getElementById(form_id);
+    form.addEventListener('submit', function () {
+        
+        // get the form dimensions
+        const rect = form.getBoundingClientRect();
+        
+        // set the overlay to match dimensions
+        const overlay = document.getElementById("loadingOverlay");
+        overlay.style.width = rect.width + "px";
+        overlay.style.height = rect.height  + "px";
+        overlay.style.top = rect.top + "px";
+        overlay.style.left = rect.left + "px";
+
+        // display the overlay
+        overlay.style.display = "block";
+        
+        // display the spinner
+        document.getElementById("spinner").style.display = "block";
+    });
+}
+
+// configure ace
+ace.config.set("useStrictCSP", true);
+
+// function for adding new editor
+function addEditor(editor_id, content, target_field = null, annotations = null) {
+    var editor = ace.edit(editor_id);
+    editor.setTheme("ace/theme/monokai");
+    editor.getSession().setMode("ace/mode/python");
+    editor.setValue(content);
+    editor.setHighlightActiveLine(false);
+    editor.clearSelection()
+    if (annotations != null) {
+        editor.setReadOnly(true);
+        editor.session.setAnnotations(annotations);
+    }
+    if (target_field != null) {
+        // add editor content to form when it is submitted
+        document.querySelector('form').addEventListener('submit', function () {
+            document.getElementById(target_field).value = editor.getValue();
+        });
+    }
+}
+
+// function for adding row-click handler
+function addRowHandler(table_id, func) {
+    // handle highlighting rows in code, based on user clicking rows on results table
+    jQuery(document).ready(function () {
+
+        // the results table
+        const table = document.getElementById(table_id);
+
+        // the table
+        table.addEventListener("click", function (event) {
+
+            // the row which was clicked
+            let row = event.target.closest('tr');
+
+            // run the function
+            func(row);
+        });
+    });
 }
