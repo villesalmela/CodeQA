@@ -71,11 +71,7 @@
     addRowHandler("lint-results", pylintRowClicked)
     
     // apply datatables script to linting results
-    jQuery(document).ready(function () {
-        jQuery('#lint-results').DataTable({
-            hover: true
-        });
-    });
+    makeDatatable("lint-results")
 </script>
 
 
