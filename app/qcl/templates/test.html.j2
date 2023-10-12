@@ -1,19 +1,15 @@
 {% extends 'base.html.j2' %}
 {% block head %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.28.0/ace.js"
-    integrity="sha512-ZxGMf7jYJjId6DxujolfBm1Fgk3eNuujx2bg1oFB6jlXhj33BR47Pnh4wLRhvdCpwoWCKP23sdLQPrIBlTEFKA=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+{% include 'load_ace.html' %}
+{% include 'load_datatables.html' %}
 <script src="/static/functions.js"></script>
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='syntax.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ace/ace.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ace/theme/monokai.css') }}">
 {% endblock %}
 {% block title %}Code QA{% endblock %}
 {% block body %}
 <h1>Test your function</h1>
 <nav class="trail">
     <ul>
-        <li><a href="/add">Lint</a></li>
+        <li><a href="/add">Check</a></li>
         <li><a href="/doc">Document</a></li>
         <li><strong>Test</strong></li>
         <li>Classify</li>
@@ -26,7 +22,6 @@
 {% if error %}
 <p class="error-message">{{ error }}</p>
 {% endif %}
-{% include 'spinner.html.j2' %}
 <form id="form" method="POST" action="/test">
     {{ form.csrf_token }}
     <label for="editor_box_documented">Source Code (Documented)</label><br>
@@ -46,32 +41,8 @@
     {{ form.next }}
 </form>
 <script nonce="{{ csp_nonce() }}">
-    ace.config.set("useStrictCSP", true);
-    var editor_documented = ace.edit("editor_box_documented");
-    editor_documented.setTheme("ace/theme/monokai");
-    editor_documented.getSession().setMode("ace/mode/python");
-    editor_documented.setValue({{ form.documented.data | tojson | safe }});
-    editor_documented.setHighlightActiveLine(false);
-    editor_documented.clearSelection()
-
-    document.querySelector('form').addEventListener('submit', function () {
-        // add editor content to form when it is submitted
-        document.getElementById('documented').value = editor_documented.getValue();
-
-        // set a spinner until page reload
-        setSpinner()
-    });
-
-    var editor_unittests = ace.edit("editor_box_unittests");
-    editor_unittests.setTheme("ace/theme/monokai");
-    editor_unittests.getSession().setMode("ace/mode/python");
-    editor_unittests.setValue({{ form.unittests.data | tojson | safe }});
-    editor_unittests.setHighlightActiveLine(false);
-    editor_unittests.clearSelection()
-
-    // add editor content to form when it is submitted
-    document.querySelector('form').addEventListener('submit', function () {
-        document.getElementById('unittests').value = editor_unittests.getValue();
-    });
+    setSpinner("form")
+    addEditor("editor_box_documented", {{ form.documented.data | tojson }}, "documented")
+    addEditor("editor_box_unittests", {{ form.unittests.data | tojson }}, "unittests")
 </script>
 {% endblock %}

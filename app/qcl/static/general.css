@@ -37,3 +37,6 @@
     z-index: 3;
     animation: spin 1s linear infinite;
   }
+
+/* row highlight in ace code editor */
+.line-highlight { background-color: dimgrey; position: absolute;}

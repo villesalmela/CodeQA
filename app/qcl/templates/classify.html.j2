@@ -7,7 +7,7 @@
 <h1>Name and Classify your function</h1>
 <nav class="trail">
     <ul>
-        <li><a href="/add">Lint</a></li>
+        <li><a href="/add">Check</a></li>
         <li><a href="/doc">Document</a></li>
         <li><a href="/test">Test</a></li>
         <li><strong>Classify</strong></li>
@@ -20,7 +20,6 @@
 {% if error %}
 <p class="error-message">{{ error }}</p>
 {% endif %}
-{% include 'spinner.html.j2' %}
 <form id="form" method="POST" action="/classify">
     {{ form.csrf_token }}
     <div>{{ form.name.label }} <br> {{ form.name }}</div>
@@ -30,11 +29,6 @@
     {{ form.save }}
 </form>
 <script nonce="{{ csp_nonce() }}">
-    document.querySelector('form').addEventListener('submit', function () {
-        
-        // set a spinner until page reload
-        setSpinner()
-
-    });
+    setSpinner("form")
 </script>
 {% endblock %}
