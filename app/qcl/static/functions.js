@@ -183,8 +183,10 @@ function addRowHandler(table_id, func) {
 
 function makeDatatable(table_id) {
     jQuery(document).ready(function () {
-        jQuery('#' + table_id).DataTable({
+        var $table = jQuery('#' + table_id)
+        $table.DataTable({
             hover: true
         });
+        $table.addClass("hover")
     });
 }
