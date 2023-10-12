@@ -138,11 +138,13 @@ function setSpinner(form_id) {
     });
 }
 
-// configure ace
-ace.config.set("useStrictCSP", true);
 
 // function for adding new editor
 function addEditor(editor_id, content, target_field = null, annotations = null) {
+    // configure ace
+    ace.config.set("useStrictCSP", true);
+    
+    // create the editor
     var editor = ace.edit(editor_id);
     editor.setTheme("ace/theme/monokai");
     editor.getSession().setMode("ace/mode/python");
