@@ -1,4 +1,4 @@
-# Quality Code Lib
+# Code QA
 ## Objective
 This application will allow users to save their Python functions in a code library. The functions are searchable and browsable, publicly available for other users.
 The application supports users in documentation and quality control of their functions.
