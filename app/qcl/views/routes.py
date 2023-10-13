@@ -55,7 +55,10 @@ def pre_request():
     if session_id := client_session.get("session_id"):
         try:
             # open session
-            user_id = server_session.open(session_id) 
+            g.psql_session_id = session_id
+            g.psql_session_modified = False
+            user_id, session_data = server_session.open(session_id) 
+            g.psql_session = session_data
             
             # create user object and make it available globally for the duration of this request
             g.user = User(user_id=user_id)
@@ -563,7 +566,7 @@ def edit_user(action: str, user_id: str):
         abort(500, message)
     
     # invalidating own access
-    if user_id == g.user.id and action in ["delete", "disable", "lock", "logout"]:
+    if user_id == str(g.user.id) and action in ["delete", "disable", "lock", "logout"]:
         del client_session["session_id"]
         return redirect(url_for("index"))
     

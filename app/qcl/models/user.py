@@ -2,13 +2,13 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from email_validator import validate_email
 from qcl.utils import log, general, dbrunner, auth
 from qcl.integrations import email
-from qcl import app
-from sqlalchemy.engine import Row
-from qcl.models.session import SESSION_MAX_LIFETIME
+from qcl import app, cache
+from qcl.models import session
+from qcl.models.session import SESSION_MAX_LIFETIME, invalidate_session_cache
 from datetime import datetime
+from flask import g
 
 USER_LOCKOUT_DURATION = 300
-
 
 def new_users_count_total() -> int:
     "Return the number of new user accounts created within last 24 hours."
@@ -67,6 +67,10 @@ def list_users() -> dict:
 
 class User:
 
+    def invalidate_user_cache(self):
+        app.logger.warning(f"invalidatig user cache for {self.id}")
+        cache.delete_memoized(User.data_from_id, self.id)
+
     @staticmethod
     def new(username: str, password: str) -> None:
         
@@ -104,39 +108,59 @@ class User:
 
 
     def __init__(self, user_id=None, username=None) -> None:
-
         if user_id:    
-            query = "SELECT user_id, username, password, verification_code, admin, verified, disabled, locked, created FROM users WHERE user_id=:user_id"
-            params = {"user_id": user_id}
+            row = self.data_from_id(user_id)
         elif username:
-            query = "SELECT user_id, username, password, verification_code, admin, verified, disabled, locked, created FROM users WHERE username=:username"
-            params = {"username": username}
+            row = self.data_from_name(username)
         else:
             raise RuntimeError("Invalid parameters")
+        if row is None:
+            log.login(None, False, general.get_remote_ip(), "Used does not exist")
+            app.logger.warning("User does not exist")
+            raise ValueError("User does not exist")
+        self.id = str(row["user_id"])
+        self.name = row["username"]
+        self.password_hash = row["password"]
+        self.verification_code_hash = row["verification_code"]
+        self.role = "admin" if row["admin"] else "user"
+        self.disabled = row["disabled"]
+        self.verified = row["verified"]
+        self.created = row["created"]
+        self.locked = True if row["locked"] and row["locked"] > general.get_time_seconds_ago(USER_LOCKOUT_DURATION) else False
+    
+    @staticmethod
+    @cache.memoize(timeout=300)
+    def data_from_id(user_id) -> dict|None:
+        query = "SELECT user_id, username, password, verification_code, admin, verified, disabled, locked, created FROM users WHERE user_id=:user_id"
+        params = {"user_id": user_id}
         try:
             result = dbrunner.execute(query, params)
         except Exception as e:
             raise RuntimeError("Failed to read user") from e
         row = result.first()
         if row is None:
-            log.login(None, False, general.get_remote_ip(), "Used does not exist")
-            app.logger.warning("User does not exist")
-            raise ValueError("User does not exist")
-        self.id = row.user_id
-        self.name = row.username
-        self.password_hash = row.password
-        self.verification_code_hash = row.verification_code
-        self.role = "admin" if row.admin else "user"
-        self.disabled = row.disabled
-        self.verified = row.verified
-        self.created = row.created
-        self.locked = True if row.locked and row.locked > general.get_time_seconds_ago(USER_LOCKOUT_DURATION) else False
+            return None
+        return row._asdict()
     
+    @staticmethod
+    def data_from_name(username: str) -> dict|None:
+        query = "SELECT user_id, username, password, verification_code, admin, verified, disabled, locked, created FROM users WHERE username=:username"
+        params = {"username": username}
+        try:
+            result = dbrunner.execute(query, params)
+        except Exception as e:
+            raise RuntimeError("Failed to read user") from e
+        row = result.first()
+        if row is None:
+            return None
+        return row._asdict()
+
     def check_verification_code(self, verification_code: str):
         remote_ip = general.get_remote_ip()
         verification_code = verification_code.replace(" ", "").replace("-", "")
         valid = check_password_hash(self.verification_code_hash, verification_code)
         if valid:
+            self.invalidate_user_cache()
             app.logger.debug("correct verification code")
             log.verification(self.id, True, remote_ip)
             query = "UPDATE users SET verified=true WHERE user_id=:user_id"
@@ -190,6 +214,7 @@ class User:
     
     def delete(self) -> None:
         app.logger.debug("Deleting user")
+        self.invalidate_user_cache()
         query = "DELETE FROM users WHERE user_id=:user_id"
         params = {"user_id": self.id}
         try:
@@ -199,6 +224,7 @@ class User:
         
     def disable(self) -> None:
         app.logger.debug("Disabling user")
+        self.invalidate_user_cache()
         query = "UPDATE users SET disabled=TRUE WHERE user_id=:user_id"
         params = {"user_id": self.id}
         try:
@@ -208,6 +234,7 @@ class User:
         
     def enable(self) -> None:
         app.logger.debug("Enabling user")
+        self.invalidate_user_cache()
         query = "UPDATE users SET disabled=FALSE WHERE user_id=:user_id"
         params = {"user_id": self.id}
         try:
@@ -217,6 +244,7 @@ class User:
         
     def lock(self) -> None:
         app.logger.debug("Locking user")
+        self.invalidate_user_cache()
         query = "UPDATE users SET locked=EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) WHERE user_id=:user_id"
         params = {"user_id": self.id}
         try:
@@ -226,6 +254,7 @@ class User:
         
     def unlock(self) -> None:
         app.logger.debug("Unlocking user")
+        self.invalidate_user_cache()
         query = "UPDATE users SET locked=NULL WHERE user_id=:user_id"
         params = {"user_id": self.id}
         try:
@@ -234,16 +263,16 @@ class User:
             raise RuntimeError("Failed to unlock user") from e
         
     def logout(self) -> None:
+        invalidate_session_cache()
         app.logger.debug("Logging out user")
-        query = "DELETE FROM sessions WHERE user_id=:user_id"
-        params = {"user_id": self.id}
         try:
-            dbrunner.execute(query, params)
+            session.PSQLSession.logout(self.id)
         except Exception as e:
             raise RuntimeError("Failed to logout user") from e
         
     def promote(self) -> None:
         app.logger.debug("Promoting user to admin")
+        self.invalidate_user_cache()
         query = "UPDATE users SET admin=TRUE WHERE user_id=:user_id"
         params = {"user_id": self.id}
         try:
@@ -253,6 +282,7 @@ class User:
         
     def demote(self) -> None:
         app.logger.debug("Demoting admin to user")
+        self.invalidate_user_cache()
         query = "UPDATE users SET admin=FALSE WHERE user_id=:user_id"
         params = {"user_id": self.id}
         try:

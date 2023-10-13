@@ -13,6 +13,7 @@ root_logger.addHandler(stream_handler)
 # do rest of imports
 import os
 from flask import Flask
+from flask_caching import Cache
 from flask_sqlalchemy import SQLAlchemy
 from flask_talisman import Talisman
 from qcl.config import Config
@@ -22,6 +23,8 @@ app = Flask(__name__)
 app.secret_key = os.environ["FLASK_SESSION_KEY"]
 app.config.from_object(Config)
 db = SQLAlchemy(app)
+cache = Cache(app)
+cache.clear()
 
 # set content security policy (CSP)
 csp = {

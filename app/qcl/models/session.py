@@ -1,15 +1,19 @@
 from qcl.utils import dbrunner, general, serialize
 from flask import g
-from qcl import app
+from qcl import app, cache
 
 SESSION_MAX_LIFETIME = 3600
+def invalidate_session_cache(session_id=None):
+    if session_id is None:
+        session_id = g.psql_session_id
+    cache.delete_memoized(PSQLSession.open, session_id)
 
 class PSQLSession:
 
     @staticmethod
-    def open(session_id) -> str:
+    @cache.memoize(timeout=300)
+    def open(session_id) -> tuple[str, dict]:
         app.logger.debug("Opening existing session")
-        g.psql_session_id = session_id
         query = "SELECT user_id, created, data FROM sessions WHERE session_id=:session_id"
         params = {"session_id": session_id}
         try:
@@ -24,9 +28,8 @@ class PSQLSession:
         user_id = row.user_id
         if created < general.get_current_time() - SESSION_MAX_LIFETIME:
             raise TimeoutError("Session expired")
-        g.psql_session = serialize.decompress(data)
-        g.psql_session_modified = False
-        return user_id
+        session_data = serialize.decompress(data)
+        return user_id, session_data
 
     def __setitem__(self, key, value):
         g.psql_session[key] = value
@@ -72,6 +75,7 @@ class PSQLSession:
     def save() -> None:
         app.logger.debug("Saving session")
         if g.psql_session_modified:
+            invalidate_session_cache()
             app.logger.debug("Session modified, writing to db")
             query = "UPDATE sessions SET data=:data WHERE session_id=:session_id"
             data = serialize.compress(g.psql_session)
@@ -86,6 +90,7 @@ class PSQLSession:
     @staticmethod
     def delete() -> None:
         app.logger.debug("Deleting session")
+        invalidate_session_cache()
         query = "DELETE FROM sessions WHERE session_id=:session_id"
         params = {"session_id": g.psql_session_id}
         try:
@@ -95,6 +100,15 @@ class PSQLSession:
         attrs = ["psql_session", "psql_session_id", "psql_session_modified"]
         for a in attrs:
             delattr(g, a)
+
+    @staticmethod
+    def logout(user_id) -> None:
+        query = "DELETE FROM sessions WHERE user_id=:user_id RETURNING session_id"
+        params = {"user_id": user_id}
+        result = dbrunner.execute(query, params)
+        rows = result.all()
+        for row in rows:
+            invalidate_session_cache(row.session_id)
         
 
 server_session = PSQLSession()
