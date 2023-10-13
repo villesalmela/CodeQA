@@ -1,8 +1,13 @@
 {% extends 'base.html.j2' %}
+{% block head %}
+{% include 'load_jquery.html' %}
+{% include 'load_datatables.html' %}
+<script src="/static/functions.js"></script>
+{% endblock %}
 {% block title %}Code QA{% endblock %}
 {% block body %}
 <h1>Functions</h1>
-<table>
+<table id="functions">
     <thead>
         <tr>
             <th>Name</th>
@@ -22,4 +27,7 @@
         {% endfor %}
     </tbody>
 </table>
+<script nonce="{{ csp_nonce() }}">
+    makeDatatable("functions")
+</script>
 {% endblock %}

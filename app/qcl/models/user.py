@@ -5,6 +5,7 @@ from qcl.integrations import email
 from qcl import app
 from sqlalchemy.engine import Row
 from qcl.models.session import SESSION_MAX_LIFETIME
+from datetime import datetime
 
 USER_LOCKOUT_DURATION = 300
 
@@ -37,7 +38,7 @@ def new_users_count_ip(remote_ip: str) -> int:
     assert isinstance(count, int)
     return count
 
-def list_users() -> list[Row]:
+def list_users() -> dict:
     query = """
         SELECT u.user_id as user_id, u.username as username, u.admin as admin,
             u.verified as verified, u.disabled as disabled, u.created as created,
@@ -56,7 +57,13 @@ def list_users() -> list[Row]:
     params = {"time_filter": time_filter}
     result = dbrunner.execute(query, params)
     rows = result.all()
-    return rows
+
+    data = [row._asdict() for row in rows]
+    for item in data:
+        item["created"] = datetime.fromtimestamp(item["created"]).strftime('%Y-%m-%d %H:%M:%S')
+        item["locked"] = True if item["locked"] and item["locked"] > general.get_time_seconds_ago(USER_LOCKOUT_DURATION) else False
+
+    return data
 
 class User:
 

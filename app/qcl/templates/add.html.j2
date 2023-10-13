@@ -38,7 +38,7 @@
 <p>Click on a row to highlight the relevant part in code window. Click on an ID number to view more details about the
     issue.
     Feel free to make adjustments in the source code and run the linting again.</p>
-<table id="lint-results" class="hover">
+<table id="lint-results">
     <thead>
         <tr>
             <th>Type</th>
@@ -71,11 +71,7 @@
     addRowHandler("lint-results", pylintRowClicked)
     
     // apply datatables script to linting results
-    jQuery(document).ready(function () {
-        jQuery('#lint-results').DataTable({
-            hover: true
-        });
-    });
+    makeDatatable("lint-results")
 </script>
 
 
