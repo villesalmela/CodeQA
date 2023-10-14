@@ -45,4 +45,12 @@ CREATE TABLE IF NOT EXISTS sessions (
     user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     created INT DEFAULT EXTRACT(EPOCH FROM CURRENT_TIMESTAMP),
     data BYTEA CHECK (LENGTH(data) < 100000)
-)
+);
+
+CREATE TABLE IF NOT EXISTS ratings (
+    rating_id SERIAL,
+    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    function_id INT NOT NULL REFERENCES functions(function_id) ON DELETE CASCADE,
+    value INT NOT NULL CHECK (value BETWEEN 1 AND 5),
+    PRIMARY KEY (user_id, function_id)
+);
