@@ -595,3 +595,35 @@ def user(user_id: str):
         app.logger.exception(message)
         abort(500, message)
     return render_template("user.html.j2", user=user, count_active_sessions=count_active_sessions, data=user_functions)
+
+
+# API-endpoint, not accesible by UI
+@app.route("/api/save_rating", methods=["POST"])
+@needs_user
+def save_rating():
+    try:
+        try:
+            # parse input
+            value = int(request.form.get("rating"))
+            function_id = int(request.form.get("function_id"))
+        
+            # validate input
+            if not value or value not in range(1, 6):
+                raise ValueError
+        except Exception:
+            return "", 400
+
+        try:
+            # create rating object
+            rating = ratings.Rating(function_id, g.user.id, value)
+        except PermissionError:
+            return "", 403
+        
+        # write the rating to db
+        rating.save()
+
+        # return new average rating
+        return {"average": ratings.calc_avg_rating(function_id)}, 201
+
+    except Exception:
+        return "", 500
