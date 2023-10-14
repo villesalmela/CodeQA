@@ -569,7 +569,7 @@ def edit_user(action: str, user_id: str):
         abort(500, message)
     
     # invalidating own access
-    if user_id == str(g.user.id) and action in ["delete", "disable", "lock", "logout"]:
+    if user_id == g.user.id and action in ["delete", "disable", "lock", "logout"]:
         del client_session["session_id"]
         return redirect(url_for("index"))
     
