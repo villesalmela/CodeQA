@@ -61,6 +61,7 @@
             <th>name</th>
             <th>usecase</th>
             <th>keywords</th>
+            <th>average rating</th>
         </tr>
     </thead>
     <tbody>
@@ -69,7 +70,7 @@
             <td><a href="/function/{{ item.function_id }}">{{ item.name }}</a></td>
             <td>{{ item.usecase }}</td>
             <td>{{ item.keywords }}</td>
-
+            <td>{{ item.average }}</td>
         </tr>
         {% endfor %}
     </tbody>

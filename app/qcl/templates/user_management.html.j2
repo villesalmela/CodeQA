@@ -18,6 +18,7 @@
             <th>locked</th>
             <th>sessions</th>
             <th>functions</th>
+            <th>average rating</th>
         </tr>
     </thead>
     <tbody>
@@ -31,6 +32,7 @@
             <td>{{ item.locked if item.locked is not none else 'N/A' }}</td>
             <td>{{ item.sessions }}</td>
             <td>{{ item.functions }}</td>
+            <td>{{ item.average }}</td>
         </tr>
         {% endfor %}
     </tbody>
