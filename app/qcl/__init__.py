@@ -36,8 +36,12 @@ csp = {
     ],
     'style-src': [
         '\'self\'',
+        'https://cdnjs.cloudflare.com',
         'https://cdn.datatables.net'
         ],
+    'img-src': [
+        "data:"
+    ]
 }
 
 # force HTTPS in production
