@@ -42,7 +42,7 @@ def list_users() -> dict:
     query = """
         SELECT u.user_id as user_id, u.username as username, u.admin as admin,
             u.verified as verified, u.disabled as disabled, u.created as created,
-            u.locked as locked, s.sessions as sessions, f.functions as functions
+            u.locked as locked, s.sessions as sessions, f.functions as functions, f.average as average
         FROM users AS u
         LEFT JOIN (
             SELECT user_id, COUNT(*) as sessions FROM sessions
@@ -50,7 +50,13 @@ def list_users() -> dict:
             GROUP BY user_id
         ) AS s ON s.user_id = u.user_id
         LEFT JOIN (
-            SELECT user_id, COUNT(*) as functions FROM functions GROUP BY user_id
+            SELECT f.user_id as user_id, COUNT(*) as functions, ROUND(AVG(r.average), 2) as average FROM functions f
+            LEFT JOIN (
+                SELECT function_id, AVG(value) as average
+                FROM ratings
+                GROUP BY function_id
+            ) as r on r.function_id = f.function_id
+            GROUP BY user_id
         ) AS f ON f.user_id = u.user_id
         """
     time_filter = general.get_time_seconds_ago(SESSION_MAX_LIFETIME)
@@ -118,7 +124,7 @@ class User:
             log.login(None, False, general.get_remote_ip(), "Used does not exist")
             app.logger.warning("User does not exist")
             raise ValueError("User does not exist")
-        self.id = str(row["user_id"])
+        self.id = row["user_id"]
         self.name = row["username"]
         self.password_hash = row["password"]
         self.verification_code_hash = row["verification_code"]

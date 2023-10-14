@@ -30,9 +30,13 @@ def get_function(function_id: int) -> dict[str, Any]:
     return row._asdict()
 
 def list_functions() -> list[Row]:
-    query = "SELECT f.function_id, f.name as name, f.usecase as usecase, f.keywords as keywords, u.username as username \
-        FROM functions AS f \
-        JOIN users AS u ON f.user_id = u.user_id"
+    query = """SELECT f.function_id, f.name as name, f.usecase as usecase, f.keywords as keywords, u.username as username, r.average as average
+        FROM functions AS f
+        JOIN users AS u ON f.user_id = u.user_id
+        LEFT JOIN (
+            SELECT function_id, ROUND(AVG(value), 1) as average FROM ratings GROUP BY function_id
+        ) AS r ON f.function_id = r.function_id
+        """
     try:
         result = dbrunner.execute(query)
     except Exception as e:
@@ -40,7 +44,15 @@ def list_functions() -> list[Row]:
     return result.all()
 
 def list_functions_by_user(user_id: str) -> list[Row]:
-    query = "SELECT function_id, name, usecase, keywords FROM functions WHERE user_id=:user_id"
+    query = """
+        SELECT f.function_id as function_id, f.name as name, f.usecase as usecase, f.keywords as keywords, r.average as average FROM functions f
+        LEFT JOIN (
+            SELECT function_id, ROUND(AVG(value), 2) as average
+            FROM ratings
+            GROUP BY function_id
+        ) as r ON f.function_id = r.function_id
+        WHERE f.user_id=:user_id
+    """
     params = {"user_id": user_id}
     try:
         result = dbrunner.execute(query, params)

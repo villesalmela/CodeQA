@@ -183,6 +183,7 @@ function addRowHandler(table_id, func) {
     });
 }
 
+// function for converting normal html table to jQuery Datatable
 function makeDatatable(table_id) {
     jQuery(document).ready(function () {
         var $table = jQuery('#' + table_id)
@@ -191,4 +192,39 @@ function makeDatatable(table_id) {
         });
         $table.addClass("hover")
     });
+}
+
+function rating(function_id, defaultValue) {
+    jQuery(document).ready(function(){
+
+        // set default value
+        jQuery("input:radio[name='rating'][value='" + defaultValue + "']").prop('checked', true);
+
+        // listen for changes
+        jQuery("input:radio[name='rating']").change(function(){
+          var selected_rating = jQuery(this).val();
+          
+          // launch api call when user gives rating
+          jQuery.ajax({
+            url: '/api/save_rating',
+            type: 'POST',
+            data: {
+              'rating': selected_rating,
+              'function_id': function_id
+            },
+            
+            // get new average rating in return
+            success: function(response) {
+                var newAverage = response.average
+                jQuery("#average-rating").attr("data-rating", newAverage.toString())
+            },
+            
+            // reset to default rating if saving fails
+            error: function() {
+              alert("Failed to save rating");
+              jQuery("input:radio[name='rating'][value='" + defaultValue + "']").prop('checked', true);
+            }
+          });
+        });
+      });
 }

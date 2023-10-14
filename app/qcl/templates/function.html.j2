@@ -1,5 +1,8 @@
 {% extends 'base.html.j2' %}
 {% block head %}
+{% include 'load_jquery.html' %}
+{% include 'load_starability.html' %}
+<script src="/static/functions.js"></script>
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='syntax.css') }}">
 {% endblock %}
 {% block title %}Code QA{% endblock %}
@@ -9,6 +12,27 @@
 <form action="/delete_function/{{ function_id }}" method="POST">
     <button type="submit">Delete</button>
 </form>
+{% endif %}
+<label for="average-rating"> Average Rating</label>
+  <div id="average-rating" class="starability-result" data-rating="{{ average_rating }}"></div>
+{% if rating_permission %}
+<fieldset class="starability-heart">
+  <legend>Your Rating</legend>
+  <input type="radio" id="rate0" class="input-no-rate" name="rating" value="0" checked aria-label="No rating." />
+  <input type="radio" id="rate1" name="rating" value="1" />
+  <label for="rate1" title="Terrible">1 star</label>
+  <input type="radio" id="rate2" name="rating" value="2" />
+  <label for="rate2" title="Not good">2 stars</label>
+  <input type="radio" id="rate3" name="rating" value="3" />
+  <label for="rate3" title="Average">3 stars</label>
+  <input type="radio" id="rate4" name="rating" value="4" />
+  <label for="rate4" title="Very good">4 stars</label>
+  <input type="radio" id="rate5" name="rating" value="5" />
+  <label for="rate5" title="Amazing">5 stars</label>
+</fieldset>
+<script nonce="{{ csp_nonce() }}">
+    rating({{ function_id }}, {{ default_rating }})
+</script>
 {% endif %}
 <h3>Author: {{ fdata.username }}</h3>
 <h3>Keywords:</h3>
