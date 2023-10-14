@@ -3,7 +3,7 @@ from qcl.utils import code_format, fileops
 from qcl.integrations import gpt, linter, testrunner
 from qcl.models.user import User
 from qcl.models import user as user_module
-from qcl.models import function
+from qcl.models import function, ratings
 from qcl.views.forms import SignupForm, LoginForm, EmailVerificationForm, CodeForm, DocForm, TestForm, ClassifyForm
 from qcl.models.session import server_session
 
@@ -510,8 +510,11 @@ def view_function(function_id):
     user_id = g.user.id
     user_role = g.user.role
     delete_permission = fuid == user_id or user_role == "admin"
+    rating_permission = fuid != user_id
+    average_rating = ratings.calc_avg_rating(function_id)
+    default_rating = ratings.get_rating(function_id, user_id)
         
-    return render_template("function.html.j2", fdata=fdata, function_id=function_id, delete_permission=delete_permission)
+    return render_template("function.html.j2", fdata=fdata, function_id=function_id, default_rating=default_rating, average_rating=average_rating, rating_permission=rating_permission, delete_permission=delete_permission)
 
 @app.route("/functions", methods=["GET"])
 @needs_user
