@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup
 from pylint.lint import Run
 from pylint.reporters.json_reporter import JSONReporter
 import json
-import requests
 
 def run_pylint(filename):
     
