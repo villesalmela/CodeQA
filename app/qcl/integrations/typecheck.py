@@ -15,8 +15,8 @@ def run_pyright(filename) -> list[dict[str, str]]:
             issue = {}
             issue["severity"] = diag["severity"]
             issue["message"] = diag["message"]
-            issue["line"] = diag["range"]["start"]["line"]
-            issue["endLine"] = diag["range"]["end"]["line"]
+            issue["line"] = diag["range"]["start"]["line"]+1
+            issue["endLine"] = diag["range"]["end"]["line"]+1
             issue["col"] = diag["range"]["start"]["character"]
             issue["endCol"] = diag["range"]["end"]["character"]
             out.append(issue)

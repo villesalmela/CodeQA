@@ -144,4 +144,65 @@
 <p>No errors or warnings.</p>
 {% endif %}
 {% endif %}
+{% if type_result is defined %}
+<h2>Type Checking Results</h2>
+{% if type_result|length > 0 %}
+<p>Click on a row to highlight the relevant part in code window. Click on an ID number to view more details about the
+    issue.
+    Feel free to make adjustments in the source code and run the check again.</p>
+<table id="type-results">
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>Message</th>
+            <th>Line</th>
+            <th hidden>Startcolumn</th>
+            <th hidden>Endline</th>
+            <th hidden>Endcolumn</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in type_result %}
+        <tr>
+            <td>{{ item.severity }}</td>
+            <td>{{ item.message }}</td>
+            <td>{{ item.line }}</td>
+            <td hidden>{{ item.col }}</td>
+            <td hidden>{{ item.endLine }}</td>
+            <td hidden>{{ item.endCol }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<script nonce="{{ csp_nonce() }}">
+    // highlight code when related row is clicked
+    addRowHandler("type-results", pyrightRowClicked)
+    
+    // apply datatables script to type results
+    var columns = [
+        null,
+        {
+            "render": function(data, type, row){
+                return data.split("\n").join("<br/>");
+            }
+        },
+        null,
+        null,
+        null,
+        null
+    ]
+    makeDatatable("type-results", columns)
+</script>
+
+
+<div id="type_box" class="editor-box"></div>
+<script nonce="{{ csp_nonce() }}">
+    // add editor box for type results
+    addEditor("type_box", {{ form.code.data | tojson }}, null, parse_type_results())
+</script>
+
+{% else %}
+<p>No errors or warnings.</p>
+{% endif %}
+{% endif %}
 {% endblock %}
