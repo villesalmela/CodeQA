@@ -1,7 +1,7 @@
 FROM python:3.11
 WORKDIR /app
 COPY app/requirements-lock.txt /app/
-RUN python -m pip install --upgrade pip
+RUN python -m pip install --upgrade pip setuptools wheel
 RUN pip install -r requirements-lock.txt
 COPY app /app
 RUN chmod +x /app/entrypoint.sh
