@@ -1,6 +1,6 @@
 from qcl import app
 from qcl.utils import code_format, fileops
-from qcl.integrations import gpt, linter, testrunner
+from qcl.integrations import gpt, linter, testrunner, security, typecheck
 from qcl.models.user import User
 from qcl.models import user as user_module
 from qcl.models import function, ratings
@@ -273,7 +273,7 @@ def add():
             source_code = form.code.data
 
             
-            if form.lint.data: # clicked run linting
+            if form.run.data: # clicked run checks
                 try:
                     code_format.check_function_only(source_code)
                     server_session["source_code"] = source_code
@@ -284,9 +284,11 @@ def add():
                 filename = fileops.create_tempfile(source_code)
                 try:
                     lint_result = linter.run_pylint(filename)
+                    security_result = security.run_bandit(filename)
+                    type_result = typecheck.run_pyright(filename)
                 finally:
                     fileops.delete_file(filename)
-                return render_template("add.html.j2", form=form, lint_result=lint_result)
+                return render_template("add.html.j2", form=form, lint_result=lint_result, security_result=security_result, type_result=type_result)
             
             elif form.doc.data: # clicked next
                 try:

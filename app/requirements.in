@@ -1,0 +1,16 @@
+bandit
+boto3
+bs4
+email-validator
+flask
+flask-caching
+flask-sqlalchemy
+flask-talisman
+flask_wtf
+gunicorn
+mailjet_rest
+openai
+psycopg2
+pygments
+pylint
+pyright

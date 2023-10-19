@@ -26,7 +26,7 @@
     <label for="editor_box" class="subtitle">Source Code</label><br>
     <div id="editor_box" class="editor-box"></div>
     <input type="hidden" id="code" name="code">
-    {{ form.lint }} {{ form.doc }}
+    {{ form.run }} {{ form.doc }}
 </form>
 <script nonce="{{ csp_nonce() }}">
     setSpinner("form")
@@ -42,9 +42,9 @@
     <thead>
         <tr>
             <th>Type</th>
-            <th>Object</th>
-            <th>Message</th>
             <th>ID</th>
+            <th>Message</th>
+            <th>Object</th>
             <th>Line</th>
             <th hidden>Startcolumn</th>
             <th hidden>Endline</th>
@@ -55,9 +55,9 @@
         {% for item in lint_result %}
         <tr>
             <td>{{ item.type }}</td>
-            <td>{{ item.obj }}</td>
+            <td><a target="_blank" rel="noreferrer noopener" href="{{ item.link }}">{{ item["message-id"] }}</a></td>
             <td>{{ item.message }}</td>
-            <td><a href="{{ item.link }}">{{ item["message-id"] }}</a></td>
+            <td>{{ item.obj }}</td>
             <td>{{ item.line }}</td>
             <td hidden>{{ item.column }}</td>
             <td hidden>{{ item.endLine }}</td>
@@ -79,6 +79,127 @@
 <script nonce="{{ csp_nonce() }}">
     // add editor box for linting results
     addEditor("lint_box", {{ form.code.data | tojson }}, null, parse_lint_results())
+</script>
+
+{% else %}
+<p>No errors or warnings.</p>
+{% endif %}
+{% endif %}
+{% if security_result is defined %}
+<h2>Bandit Results</h2>
+{% if security_result|length > 0 %}
+<p>Click on a row to highlight the relevant part in code window. Click on an ID number to view more details about the
+    issue.
+    Feel free to make adjustments in the source code and run the check again.</p>
+<table id="security-results">
+    <thead>
+        <tr>
+            <th>Test</th>
+            <th>ID</th>
+            <th>Message</th>
+            <th>Severity</th>
+            <th>Confidence</th>
+            <th>Object</th>
+            <th>Weakness</th>
+            <th>Line</th>
+            <th hidden>Startcolumn</th>
+            <th hidden>Endline</th>
+            <th hidden>Endcolumn</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in security_result %}
+        <tr>
+            <td>{{ item.test }}</td>
+            <td><a target="_blank" rel="noreferrer noopener" href="{{ item.test_link }}">{{ item.test_id }}</a></td>
+            <td>{{ item.description }}</td>
+            <td>{{ item.severity }}</td>
+            <td>{{ item.confidence }}</td>
+            <td>{{ item.object }}</td>
+            <td><a target="_blank" rel="noreferrer noopener" href="{{ item.cwe_link }}">CWE-{{ item.cwe_id }}</a></td>
+            <td>{{ item.line }}</td>
+            <td hidden>{{ item.col }}</td>
+            <td hidden>{{ item.line_end }}</td>
+            <td hidden>{{ item.col_end }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<script nonce="{{ csp_nonce() }}">
+    // highlight code when related row is clicked
+    addRowHandler("security-results", banditRowClicked)
+    
+    // apply datatables script to security results
+    makeDatatable("security-results")
+</script>
+
+
+<div id="security_box" class="editor-box"></div>
+<script nonce="{{ csp_nonce() }}">
+    // add editor box for security results
+    addEditor("security_box", {{ form.code.data | tojson }}, null, parse_security_results())
+</script>
+
+{% else %}
+<p>No errors or warnings.</p>
+{% endif %}
+{% endif %}
+{% if type_result is defined %}
+<h2>Type Checking Results</h2>
+{% if type_result|length > 0 %}
+<p>Click on a row to highlight the relevant part in code window. Click on an ID number to view more details about the
+    issue.
+    Feel free to make adjustments in the source code and run the check again.</p>
+<table id="type-results">
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>Message</th>
+            <th>Line</th>
+            <th hidden>Startcolumn</th>
+            <th hidden>Endline</th>
+            <th hidden>Endcolumn</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in type_result %}
+        <tr>
+            <td>{{ item.severity }}</td>
+            <td>{{ item.message }}</td>
+            <td>{{ item.line }}</td>
+            <td hidden>{{ item.col }}</td>
+            <td hidden>{{ item.endLine }}</td>
+            <td hidden>{{ item.endCol }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<script nonce="{{ csp_nonce() }}">
+    // highlight code when related row is clicked
+    addRowHandler("type-results", pyrightRowClicked)
+    
+    // render newlines in message field
+    var columns = [
+        null,
+        {
+            "render": function(data, type, row){
+                return data.split("\n").join("<br/>");
+            }
+        },
+        null,
+        null,
+        null,
+        null
+    ]
+    // apply datatables script to type results
+    makeDatatable("type-results", columns)
+</script>
+
+
+<div id="type_box" class="editor-box"></div>
+<script nonce="{{ csp_nonce() }}">
+    // add editor box for type results
+    addEditor("type_box", {{ form.code.data | tojson }}, null, parse_type_results())
 </script>
 
 {% else %}

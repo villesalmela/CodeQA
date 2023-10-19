@@ -40,6 +40,7 @@ csp = {
         'https://cdn.datatables.net'
         ],
     'img-src': [
+        '\'self\'',
         "data:"
     ]
 }
