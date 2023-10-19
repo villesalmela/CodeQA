@@ -104,6 +104,8 @@ multidict==6.0.4
     # via
     #   aiohttp
     #   yarl
+nodeenv==1.8.0
+    # via pyright
 openai==0.28.1
     # via -r requirements.in
 packaging==23.2
@@ -119,6 +121,8 @@ pygments==2.16.1
     #   -r requirements.in
     #   rich
 pylint==3.0.1
+    # via -r requirements.in
+pyright==1.1.332
     # via -r requirements.in
 python-dateutil==2.8.2
     # via botocore
@@ -158,3 +162,6 @@ wtforms==3.1.0
     # via flask-wtf
 yarl==1.9.2
     # via aiohttp
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools
