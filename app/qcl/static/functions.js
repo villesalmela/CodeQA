@@ -335,16 +335,14 @@ function addRowHandler(table_id, func) {
 function makeDatatable(table_id, columns=[]) {
     jQuery(document).ready(function () {
         var $table = jQuery('#' + table_id)
-        if (columns.length > 0) {
-            $table.DataTable({
-                hover: true,
-                columns: columns
-            });
-        } else {
-            $table.DataTable({
-                hover: true,
-            });
+        var options = {
+            hover: true,
+            searching: false
         }
+        if (columns.length > 0) {
+            options.columns = columns
+        }
+        $table.DataTable(options);
         $table.addClass("hover")
     
     });

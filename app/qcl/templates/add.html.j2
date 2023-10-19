@@ -178,7 +178,7 @@
     // highlight code when related row is clicked
     addRowHandler("type-results", pyrightRowClicked)
     
-    // apply datatables script to type results
+    // render newlines in message field
     var columns = [
         null,
         {
@@ -191,6 +191,7 @@
         null,
         null
     ]
+    // apply datatables script to type results
     makeDatatable("type-results", columns)
 </script>
 
