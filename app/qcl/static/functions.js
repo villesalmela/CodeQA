@@ -64,6 +64,42 @@ function pylintRowClicked(row) {
     highlightError(editor, marker_key, startline, endline, startcol + 1, endcol + 1);
 }
 
+// This function will highlight the corresponding row on code editor, when item on the security results table is clicked.
+function banditRowClicked(row) {
+
+    editor_container = document.getElementById("security_box")
+    editor = ace.edit(editor_container)
+
+    // get the relevant cells
+    const cells = Array.from(row.cells);
+
+    // extract innerText from cells
+    const cellData = cells.map(cell => cell.innerText);
+
+    // extract values from cells
+    const startline = convert(cellData[7]);
+    var startcol = convert(cellData[8]);
+    var endline = convert(cellData[9]);
+    var endcol = convert(cellData[10]);
+
+    // set default values
+    if (endline === null || endline === undefined) {
+        var endline = startline;
+    }
+
+    if (endcol === null || endcol === undefined) {
+        var endcol = Infinity;
+    }
+
+    if (startcol === null || startcol === undefined) {
+        var startcol = 1;
+    }
+
+    marker_key = 1
+    // apparently null indexing on lines, but not on columns
+    highlightError(editor, marker_key, startline, endline, startcol + 1, endcol + 1);
+}
+
 // This function will parse linting results table, and extract messages and relevant code locations
 // Output is in a format that can be used to set annotations in Ace editor
 function parse_lint_results() {
@@ -86,6 +122,43 @@ function parse_lint_results() {
         } else if (type == "fatal" || type == "error") {
             type = "error"
         } else if (type == "warning") {
+            type = "warning"
+        } else {
+            type = "error"
+        }
+
+        // build annotation and add it to list
+        annotations.push({
+            row: startLine,
+            column: 0,
+            text: message,
+            type: type
+        });
+    });
+
+    return annotations;
+}
+
+// This function will parse security results table, and extract messages and relevant code locations
+// Output is in a format that can be used to set annotations in Ace editor
+function parse_security_results() {
+    const rows = document.querySelectorAll('#security-results tbody tr');
+    const annotations = [];
+
+    rows.forEach(row => {
+        
+        // get cell data
+        const cells = row.querySelectorAll('td');
+        
+        // extract values from cells
+        var severity = cells[3].innerText;
+        const message = cells[2].innerText;
+        const startLine = parseInt(cells[7].innerText, 10) - 1;
+
+        // convert to info/warning/error
+        if (severity == "LOW") {
+            type = "info"
+        } else if (severity == "MEDIUM") {
             type = "warning"
         } else {
             type = "error"

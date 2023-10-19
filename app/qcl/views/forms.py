@@ -38,7 +38,7 @@ class CodeForm(FlaskForm):
     code = StringField(validators=[
         Length(min=10, max=1500)
     ])
-    lint = SubmitField("Run Linting")
+    run = SubmitField("Run Checks")
     doc = SubmitField("Next")
 
 
