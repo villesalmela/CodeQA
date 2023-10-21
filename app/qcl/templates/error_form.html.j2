@@ -1,4 +1,5 @@
 {% if form.errors %}
+<div class="container rounded border border-danger">
 <ul class="errors">
     {% for field_name, field_errors in form.errors|dictsort if field_errors %}
     {% for error in field_errors %}
@@ -6,4 +7,5 @@
     {% endfor %}
     {% endfor %}
 </ul>
+</div>
 {% endif %}

@@ -1,3 +1,4 @@
+{% from 'tabs.html.j2' import input_tab, output_tab %}
 {% extends 'base.html.j2' %}
 {% block head %}
 {% include 'load_jquery.html' %}
@@ -6,32 +7,50 @@
 {% endblock %}
 {% block title %}Code QA{% endblock %}
 {% block body %}
-<h1>Document your function</h1>
-<nav class="trail">
-    <ul>
-        <li><a href="/add">Check</a></li>
-        <li><strong>Document</strong></li>
-        <li>Test</li>
-        <li>Classify</li>
-    </ul>
-</nav>
-<p>Click 'Generate Docs' to have OpenAI to automatically enhance your code with comments and docstrings.
-    Feel free to further improve the result, before clicking 'Next'.
-</p>
+<div class="container">
+    <h1>Documentation</h1>
+    <nav class="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/add">Check</a></li>
+            <li class="breadcrumb-item active">Document</li>
+            <li class="breadcrumb-item">Test</li>
+            <li class="breadcrumb-item">Classify</li>
+        </ol>
+    </nav>
+
+    <p>Click 'Generate Docs' to have OpenAI to automatically enhance your code with comments and docstrings.
+        Feel free to further improve the result, before clicking 'Next'.
+    </p>
+    {{ input_tab() }}
+</div>
 {% include 'error_form.html.j2' %}
 {% if error %}
-<p class="error-message">{{ error }}</p>
+<div class="container rounded border border-danger">
+    <p class="error-message">{{ error }}</p>
+</div>
 {% endif %}
 <form id="form" method="POST" action="/doc">
-    {{ form.csrf_token }}
-    <label for="editor_box_code">Source Code</label><br>
-    <div id="editor_box_code" class="editor-box"></div>
-    <input type="hidden" id="code" name="code">
-    <label for="editor_box_documented">Source Code (Documented)</label><br>
-    <div id="editor_box_documented" class="editor-box"></div>
-    <input type="hidden" id="documented" name="documented">
-    {{ form.generate }}
-    {{ form.next }}
+    <div class="container border border-primary rounded">
+        {{ form.csrf_token }}
+        <label for="editor_box_code" class="form-label">Source Code</label>
+        <div id="editor_box_code" class="editor-box"></div>
+        <input type="hidden" id="code" name="code">
+    </div>
+    <div class="container">
+        <div class="btn-group my-3">
+            <a href="/add" class="btn btn-outline-warning">Back</a>
+            {{ form.generate }}
+            {{ form.next }}
+        </div>
+    </div>
+    <div class="container">
+        {{ output_tab(editable=True) }}
+    </div>
+    <div class="container border border-secondary rounded">
+        <label for="editor_box_documented" class="form-label">Source Code (Documented)</label>
+        <div id="editor_box_documented" class="editor-box"></div>
+        <input type="hidden" id="documented" name="documented">
+    </div>
 </form>
 <script nonce="{{ csp_nonce() }}">
     setSpinner("form")

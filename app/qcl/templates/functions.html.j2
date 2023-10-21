@@ -6,6 +6,7 @@
 {% endblock %}
 {% block title %}Code QA{% endblock %}
 {% block body %}
+<div class="container">
 <h1>Functions</h1>
 <table id="functions">
     <thead>
@@ -32,4 +33,5 @@
 <script nonce="{{ csp_nonce() }}">
     makeDatatable("functions")
 </script>
+</div>
 {% endblock %}

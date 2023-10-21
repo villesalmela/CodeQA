@@ -251,41 +251,6 @@ function parse_type_results() {
     return annotations;
 }
 
-// sets a spinner on top a form, which is displayed after the form is submitted, until page reloads
-function setSpinner(form_id) {
-    
-    // insert the overlay
-    var div_content = `
-        <div class="overlay" id="loadingOverlay">
-            <div class="spinner" id="spinner">
-            Loading...
-            </div>
-        </div>
-        `;
-    jQuery(form_id).before(div_content);
-
-    // add event listener
-    const form = document.getElementById(form_id);
-    form.addEventListener('submit', function () {
-        
-        // get the form dimensions
-        const rect = form.getBoundingClientRect();
-        
-        // set the overlay to match dimensions
-        const overlay = document.getElementById("loadingOverlay");
-        overlay.style.width = rect.width + "px";
-        overlay.style.height = rect.height  + "px";
-        overlay.style.top = rect.top + "px";
-        overlay.style.left = rect.left + "px";
-
-        // display the overlay
-        overlay.style.display = "block";
-        
-        // display the spinner
-        document.getElementById("spinner").style.display = "block";
-    });
-}
-
 
 // function for adding new editor
 function addEditor(editor_id, content, target_field = null, annotations = null) {
@@ -337,7 +302,8 @@ function makeDatatable(table_id, columns=[]) {
         var $table = jQuery('#' + table_id)
         var options = {
             hover: true,
-            searching: false
+            searching: false,
+            lengthChange: false
         }
         if (columns.length > 0) {
             options.columns = columns
@@ -382,3 +348,19 @@ function rating(function_id, defaultValue) {
         });
       });
 }
+
+
+function setSpinner(formId) {
+    // select all buttons within the given form
+    const $buttons = $(`#${formId} .btn`);
+    console.log($buttons)
+  
+    // attach listener to each button
+    $buttons.on("click", function() {
+      // add spinner button next to it, then hide the original, effectively swapping them
+      var content = `<button type="button" class="btn btn-outline-light"><span class="spinner-border spinner-border-sm"></span>Loading...</button>`
+      $(this).attr("value", "Loading...")
+             .before(content)
+             .hide();
+    });
+  }

@@ -1,3 +1,4 @@
+{% from 'tabs.html.j2' import input_tab, output_tab %}
 {% extends 'base.html.j2' %}
 {% block head %}
 {% include 'load_jquery.html' %}
@@ -7,43 +8,101 @@
 {% endblock %}
 {% block title %}Code QA{% endblock %}
 {% block body %}
-<h1>Test your function</h1>
-<nav class="trail">
-    <ul>
-        <li><a href="/add">Check</a></li>
-        <li><a href="/doc">Document</a></li>
-        <li><strong>Test</strong></li>
-        <li>Classify</li>
-    </ul>
+<div class="container">
+<h1>Testing</h1>
+<nav class="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/add">Check</a></li>
+        <li class="breadcrumb-item"><a href="/doc">Document</a></li>
+        <li class="breadcrumb-item active">Test</li>
+        <li class="breadcrumb-item">Classify</li>
+    </ol>
 </nav>
+</div>
+<div class="container">
 <p>Click 'Generate Tests' to have OpenAI automatically generate a set of unit tests for your code.
     You can then review and modify the tests, before running them with 'Run Tests'
 </p>
+{{ input_tab() }}
 {% include 'error_form.html.j2' %}
 {% if error %}
-<p class="error-message">{{ error }}</p>
+<div class="container rounded border border-danger">
+    <p class="error-message">{{ error }}</p>
+</div>
 {% endif %}
 <form id="form" method="POST" action="/test">
-    {{ form.csrf_token }}
-    <label for="editor_box_documented">Source Code (Documented)</label><br>
-    <div id="editor_box_documented" class="editor-box"></div>
-    <input type="hidden" id="documented" name="documented">
-    <label for="editor_box_unittests">Unit Tests</label><br>
-    <div id="editor_box_unittests" class="editor-box"></div>
-    <input type="hidden" id="unittests" name="unittests">
-    {% if results %}
-    <h2>Test results</h2>
-    <pre>
-        {{ results }}
-    </pre>
-    {% endif %}
-    {{ form.generate }}
-    {{ form.run }}
-    {{ form.next }}
+    <div class="container border border-primary rounded">
+        {{ form.csrf_token }}
+        <label for="editor_box_documented" class="form-label">Source Code (Documented)</label>
+        <div id="editor_box_documented" class="editor-box"></div>
+    </div>
+    <div class="btn-group my-3">
+        <a href="/doc" class="btn btn-outline-warning">Back</a>
+        {{ form.generate }}
+        {{ form.run }}
+        {{ form.next }}
+    </div>
+    
+        <div class="row">
+            <div class="col">
+                {{ output_tab(editable=True) }}
+                <div class="container border border-secondary rounded">
+                    <input type="hidden" id="documented" name="documented">
+                    <label for="editor_box_unittests" class="form-label">Unit Tests</label>
+                    <div id="editor_box_unittests" class="editor-box"></div>
+                    <input type="hidden" id="unittests" name="unittests">
+                </div>
+            </div>
+            <div class="col">
+            {{ output_tab(editable=False) }}
+                <div class="container border border-secondary rounded">
+                    {% if failures %}
+                        <label for="test-results">Test results</label>
+                        {% if ok_count %}
+                        <span class="badge text-bg-success">Success: {{ ok_count }}</span>
+                        {% endif %}
+                        {% if fail_count %}
+                        <span class="badge text-bg-danger">Failure: {{ fail_count }}</span>
+                        {% endif %}
+                        <table id="test-results">
+                        
+                        <thead>
+                        <tr>
+                            <th>Failure</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>    
+                        {% for item in failures %}
+                            <tr><td>{{ item }}</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                        <script nonce="{{ csp_nonce() }}">
+                            // render newlines in message field
+                            var columns = [
+                                {
+                                    "render": function(data, type, row){
+                                        return data.split("\n").join("<br/>");
+                                    }
+                                }
+                            ]
+                            // apply datatables script to security results
+                            makeDatatable("test-results", columns)
+                        </script>
+                    {% else %}
+                        <p>No errors</p>
+                        {% if ok_count %}
+                            <span class="badge text-bg-success">Success: {{ ok_count }}</span>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
 </form>
 <script nonce="{{ csp_nonce() }}">
     setSpinner("form")
     addEditor("editor_box_documented", {{ form.documented.data | tojson }}, "documented")
     addEditor("editor_box_unittests", {{ form.unittests.data | tojson }}, "unittests")
 </script>
+</div>
 {% endblock %}

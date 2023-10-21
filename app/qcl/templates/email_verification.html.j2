@@ -1,16 +1,20 @@
 {% extends 'base_nologin.html.j2' %}
 {% block title %}Login to Code QA{% endblock %}
 {% block body %}
+<div class="container">
 <h1>Email Verification</h1>
 <p>Please enter the verification code you received in your email.</p>
 {% include 'error_form.html.j2' %}
 {% if error %}
-<p class="error-message">The code is incorrect</p>
+<div class="container rounded border border-danger">
+    <p class="error-message">{{ error }}</p>
+</div>
 {% endif %}
 <form method="POST" action="/verify_email">
     {{ form.csrf_token }}
     <div>{{ form.code.label }}: {{ form.code() }}</div>
-    <input type="submit" value="Submit">
+    {{ form.submit }}
 </form>
 <a href="/logout">Log out</a>
+</div>
 {% endblock %}

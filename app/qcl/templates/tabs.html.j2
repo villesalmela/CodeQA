@@ -1,0 +1,20 @@
+{% macro output_tab(editable=False) %}
+{% if editable %}
+    {% set badge = '<span class="badge text-bg-info">Editable</span>' %}
+{% else %}
+    {% set badge = '<span class="badge text-bg-warning">Read-only</span>' %}
+{% endif %}
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a class="nav-link active text-bg-secondary" aria-current="page" href="#">Output {{ badge }}</a>
+  </li>
+</ul>
+{% endmacro %}
+
+{% macro input_tab() %}
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a class="nav-link active text-bg-primary" aria-current="page" href="#">Input</a>
+  </li>
+</ul>
+{% endmacro %}
