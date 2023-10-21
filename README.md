@@ -32,7 +32,7 @@ The application supports users in documentation and quality control of their fun
 - Users can remove their own saved functions
 
 ## Database Schema
-Database schema is [detailed in wiki](../../wiki/Schema.md). However here is a short summary.
+Database schema is [detailed in wiki](../../wiki/Schema). However here is a short summary.
 
 ### Users
 Each row represents one user.  
@@ -59,7 +59,7 @@ Each row represents one rating.
 Contains references to both user and function, and of course the rating.
 
 ## Security Considerations
-Weaknesses and related mitigations are [listed on wiki](../../wiki/Security.md)
+Weaknesses and related mitigations are [listed on wiki](../../wiki/Security)
 
 ## Testing
 Application is packaged into docker container using Github Action, and uploaded to AWS ECR by the pipeline.
@@ -101,4 +101,4 @@ def factorial(n):
 Feel free to try the process with these ones, or come up with something else.
 
 ### Local Testing
-Local testing is not quite viable for this app, as it relies heavily on public cloud services, that you need to configure separately. If you really want to, [wiki has instructions](../../wiki/LocalTesting.md)
+Local testing is not quite viable for this app, as it relies heavily on public cloud services, that you need to configure separately. If you really want to, [wiki has instructions](../../wiki/LocalTesting)
