@@ -29,7 +29,7 @@
     <p class="error-message">{{ error }}</p>
 </div>
 {% endif %}
-<form id="form" method="POST" action="/doc">
+<form id="form" method="POST" action="/doc" novalidate>
     <div class="container border border-primary rounded">
         {{ form.csrf_token }}
         <label for="editor_box_code" class="form-label">Source Code</label>

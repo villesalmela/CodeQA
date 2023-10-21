@@ -26,7 +26,7 @@
     <p class="error-message">{{ error }}</p>
 </div>
 {% endif %}
-<form id="form" method="POST" action="/classify">
+<form id="form" method="POST" action="/classify" novalidate>
     {{ form.csrf_token }}
     <div class="form-floating mb-3">
         {{ form.name }}
