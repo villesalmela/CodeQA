@@ -1,9 +1,11 @@
 from qcl.utils import dbrunner, general, serialize
 from flask import g
 from qcl import app, cache
+from uuid import UUID
+from typing import Optional
 
 SESSION_MAX_LIFETIME = 3600
-def invalidate_session_cache(session_id=None):
+def invalidate_session_cache(session_id: Optional[UUID]=None):
     if session_id is None:
         session_id = g.psql_session_id
     cache.delete_memoized(PSQLSession.open, session_id)
@@ -12,7 +14,7 @@ class PSQLSession:
 
     @staticmethod
     @cache.memoize(timeout=300)
-    def open(session_id) -> tuple[str, dict]:
+    def open(session_id: UUID) -> tuple[str, dict]:
         app.logger.debug("Opening existing session")
         query = "SELECT user_id, created, data FROM sessions WHERE session_id=:session_id"
         params = {"session_id": session_id}
@@ -54,7 +56,7 @@ class PSQLSession:
         return g.psql_session.get(key)
     
     @staticmethod
-    def new(user_id: str) -> str:
+    def new(user_id: UUID) -> UUID:
         data = {}
         app.logger.debug("Creating new session")
         query = "INSERT INTO sessions (user_id, data) VALUES (:user_id, :data) RETURNING session_id"
@@ -102,7 +104,7 @@ class PSQLSession:
             delattr(g, a)
 
     @staticmethod
-    def logout(user_id) -> None:
+    def logout(user_id: UUID) -> None:
         query = "DELETE FROM sessions WHERE user_id=:user_id RETURNING session_id"
         params = {"user_id": user_id}
         result = dbrunner.execute(query, params)
