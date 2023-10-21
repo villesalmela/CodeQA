@@ -7,6 +7,7 @@ from qcl.models import session
 from qcl.models.session import SESSION_MAX_LIFETIME, invalidate_session_cache
 from datetime import datetime
 from flask import g
+from uuid import UUID
 
 USER_LOCKOUT_DURATION = 300
 
@@ -75,7 +76,7 @@ class User:
 
     def invalidate_user_cache(self):
         app.logger.warning(f"invalidatig user cache for {self.id}")
-        cache.delete_memoized(User.data_from_id, self.id)
+        cache.delete_memoized(self.data_from_id, self.id)
 
     @staticmethod
     def new(username: str, password: str) -> None:
@@ -136,7 +137,7 @@ class User:
     
     @staticmethod
     @cache.memoize(timeout=300)
-    def data_from_id(user_id) -> dict|None:
+    def data_from_id(user_id: UUID) -> dict|None:
         query = "SELECT user_id, username, password, verification_code, admin, verified, disabled, locked, created FROM users WHERE user_id=:user_id"
         params = {"user_id": user_id}
         try:
@@ -260,13 +261,13 @@ class User:
         
     def unlock(self) -> None:
         app.logger.debug("Unlocking user")
-        self.invalidate_user_cache()
         query = "UPDATE users SET locked=NULL WHERE user_id=:user_id"
         params = {"user_id": self.id}
         try:
             dbrunner.execute(query, params)
         except Exception as e:
             raise RuntimeError("Failed to unlock user") from e
+        self.invalidate_user_cache()
         
     def logout(self) -> None:
         invalidate_session_cache()

@@ -9,7 +9,7 @@ from qcl.models.session import server_session
 
 from flask import render_template, request, redirect, url_for, g, abort, make_response, session as client_session
 from functools import wraps
-import json
+from uuid import UUID
 
 ### ACCESS CONTROL
 def needs_user(func):
@@ -52,12 +52,12 @@ def pre_request():
         return None
     
     # client thinks it has session
-    if session_id := client_session.get("session_id"):
+    if session_id_str := client_session.get("session_id"):
         try:
             # open session
-            g.psql_session_id = session_id
+            g.psql_session_id = UUID(session_id_str)
             g.psql_session_modified = False
-            user_id, session_data = server_session.open(session_id) 
+            user_id, session_data = server_session.open(g.psql_session_id) 
             g.psql_session = session_data
             
             # create user object and make it available globally for the duration of this request
@@ -180,7 +180,7 @@ def login():
                 app.logger.exception(message)
                 abort(500, message)
             app.logger.info("Login ok")
-            client_session["session_id"] = session_id
+            client_session["session_id"] = str(session_id)
             return redirect(url_for("index"))
         else:
             raise RuntimeError("Invalid login status")
@@ -546,9 +546,10 @@ def user_management():
     data = user_module.list_users()
     return render_template("user_management.html.j2", data=data)
 
-@app.route("/edit_user/<string:action>/<string:user_id>", methods=["POST"])
+@app.route("/edit_user/<string:action>/<string:user_id_str>", methods=["POST"])
 @needs_admin
-def edit_user(action: str, user_id: str):
+def edit_user(action: str, user_id_str: str):
+    user_id = UUID(user_id_str)
     try:
         user = User(user_id=user_id)
         match action:
@@ -592,11 +593,12 @@ def edit_user(action: str, user_id: str):
 
     # otherwise
     else:
-        return redirect(url_for(f"user", user_id=user_id))
+        return redirect(url_for(f"user", user_id_str=str(user_id)))
     
-@app.route("/user/<string:user_id>", methods=["GET"])
+@app.route("/user/<string:user_id_str>", methods=["GET"])
 @needs_admin
-def user(user_id: str):
+def user(user_id_str: str):
+    user_id = UUID(user_id_str)
     user_functions = function.list_functions_by_user(user_id)
     try:
         user = User(user_id=user_id)

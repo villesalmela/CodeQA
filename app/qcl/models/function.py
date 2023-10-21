@@ -1,8 +1,9 @@
 from qcl.utils import dbrunner
 from typing import Any
 from sqlalchemy.engine import Row
+from uuid import UUID
 
-def save_function(code: str, tests: str, keywords: str, usecase: str, name: str, user_id: str) -> tuple[bool, str]:
+def save_function(code: str, tests: str, keywords: str, usecase: str, name: str, user_id: UUID) -> tuple[bool, str]:
     query = "INSERT INTO functions (code, tests, keywords, usecase, name, user_id) \
         VALUES (:code, :tests, :keywords, :usecase, :name, :user_id) RETURNING function_id"
     params = {"code": code, "tests": tests, "keywords": keywords, "usecase": usecase, "name": name, "user_id": user_id}
@@ -43,7 +44,7 @@ def list_functions() -> list[Row]:
         raise RuntimeError("Failed to list functions") from e
     return result.all()
 
-def list_functions_by_user(user_id: str) -> list[Row]:
+def list_functions_by_user(user_id: UUID) -> list[Row]:
     query = """
         SELECT f.function_id as function_id, f.name as name, f.usecase as usecase, f.keywords as keywords, r.average as average FROM functions f
         LEFT JOIN (
