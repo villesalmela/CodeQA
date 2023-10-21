@@ -337,7 +337,8 @@ function makeDatatable(table_id, columns=[]) {
         var $table = jQuery('#' + table_id)
         var options = {
             hover: true,
-            searching: false
+            searching: false,
+            lengthChange: false
         }
         if (columns.length > 0) {
             options.columns = columns
