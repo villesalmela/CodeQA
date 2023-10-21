@@ -1,6 +1,7 @@
 # Code QA
 ## Status
-The application is work in progress.
+The application is work in progress.  
+[Status history](../../wiki/StatusHistory) is available on wiki.
 
 ## Objective
 This application will allow users to save their Python functions in a code library. The functions are searchable and browsable, publicly available for other users.
