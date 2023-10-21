@@ -394,13 +394,24 @@ def test():
                 return render_template("test.html.j2", form=form, error=error)
             try:
                 results = testrunner.execute(func=documented, test=unittests)
-                results = json.dumps(results, indent=4)
+                failures = results["failures"]
+                errors = results["errors"]
+                skipped = results["skipped"]
+                failures.extend(errors)
+                
+                if not failures and not results["successful"]:
+                    failures = ["Failed to run unit tests"]
+
+                fail_count = len(errors) + len(failures) + len(skipped)
+                ok_count = results["total"] - fail_count
                 error = False
             except Exception:
                 error = "Failed to run unit tests"
                 app.logger.exception(error)
-                results = ""
-            return render_template("test.html.j2", form=form, results=results, error=error)
+                failures = [error]
+                ok_count = 0
+                fail_count = 1
+            return render_template("test.html.j2", form=form, failures=failures, error=error, ok_count=ok_count, fail_count=fail_count)
         elif form.next.data: # clicked next
             if form.validate(): # data ok
                 documented = form.documented.data

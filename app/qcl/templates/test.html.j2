@@ -40,6 +40,46 @@
     {{ form.generate }}
     {{ form.run }}
     {{ form.next }}
+                    {% if failures %}
+                        <label for="test-results">Test results</label>
+                        {% if ok_count %}
+                        <span class="badge text-bg-success">Success: {{ ok_count }}</span>
+                        {% endif %}
+                        {% if fail_count %}
+                        <span class="badge text-bg-danger">Failure: {{ fail_count }}</span>
+                        {% endif %}
+                        <table id="test-results">
+                        
+                        <thead>
+                        <tr>
+                            <th>Failure</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>    
+                        {% for item in failures %}
+                            <tr><td>{{ item }}</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                        <script nonce="{{ csp_nonce() }}">
+                            // render newlines in message field
+                            var columns = [
+                                {
+                                    "render": function(data, type, row){
+                                        return data.split("\n").join("<br/>");
+                                    }
+                                }
+                            ]
+                            // apply datatables script to security results
+                            makeDatatable("test-results", columns)
+                        </script>
+                    {% else %}
+                        <p>No errors</p>
+                        {% if ok_count %}
+                            <span class="badge text-bg-success">Success: {{ ok_count }}</span>
+                        {% endif %}
+                    {% endif %}
 </form>
 <script nonce="{{ csp_nonce() }}">
     setSpinner("form")
