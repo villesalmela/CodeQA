@@ -1,3 +1,7 @@
+:root {
+  --bs-breadcrumb-divider: '>';
+}
+
 .editor-box {
     height: 300px;
     width: 500px;
