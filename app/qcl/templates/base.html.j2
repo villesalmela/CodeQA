@@ -1,28 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='general.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='menus.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" integrity="sha512-b2QcS5SsA8tZodcDtGRELiGv5SaKSk1vDHDaQRda0htPYWZ6046lr3kJ5bAAQdpV2mmA/4v0wQF9MyU6/pDIAg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     {% block head %}{% endblock %}
     <title>{% block title %}{% endblock %}</title>
 </head>
 
 <body>
-    <nav class="main">
-        <ul>
-            <li><a href="/">Home Page</a></li>
-            <li><a href="/add">Add New Function</a></li>
-            <li><a href="/functions">Browse Functions</a></li>
-            {% if user_role == "admin" %}
-            <li><a href="/user_management">User Management</a></li>
-            {% endif %}
-            <li><a href="/logout">Log Out</a></li>
-        </ul>
-        {% if username %}<p>Logged in as: {{ username }}</p>{% endif %}
+    
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="/">Home Page</a></li>
+                <li class="nav-item"><a class="nav-link" href="/add">Add New Function</a></li>
+                <li class="nav-item"><a class="nav-link" href="/functions">Browse Functions</a></li>
+                {% if user_role == "admin" %}
+                <li class="nav-item"><a class="nav-link" href="/user_management">User Management</a></li>
+                {% endif %}
+            </ul>
+            <div class="dropdown">
+                <button class="btn btn-outline-light dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    {{ username }}
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="/logout">Log Out</a></li>
+                </ul>
+            </div>
+        </div>
     </nav>
-    {% block body %}{% endblock %}
+    {% block body %}
+    
+    {% endblock %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js" integrity="sha512-X/YkDZyjTf4wyc2Vy16YGCPHwAY8rZJY+POgokZjQB2mhIRFJCckEGc6YyX9eNsPfn0PzThEuNs+uaomE5CO6A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </body>
 
 </html>
