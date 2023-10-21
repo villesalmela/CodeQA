@@ -60,7 +60,7 @@ Each row represents one rating.
 Contains references to both user and function, and of course the rating.
 
 ## Security Considerations
-Weaknesses and related mitigations are [listed on wiki](../../wiki/Security)
+During the application design process, most relevant common weaknesses were identified. They, and related mitigations are [listed on wiki](../../wiki/Security)
 
 ## Testing
 Application is packaged into docker container using Github Action, and uploaded to AWS ECR by the pipeline.
@@ -78,7 +78,7 @@ Administrator:
 - username: testadmin@villesalmela.fi
 - password: password
 
-Please don't delete or disable admin account, you currently can't make more of them without direct DB access.
+Please don't delete or disable the last admin account, since recovering from that needs direct access to the production database.
 
 Couple of test functions were saved to the library using these inputs:
 ```python
