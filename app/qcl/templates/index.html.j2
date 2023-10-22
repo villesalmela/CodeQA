@@ -1,3 +1,4 @@
+{% from 'info.html.j2' import info %}
 {% extends 'base.html.j2' %}
 {% block title %}Code QA{% endblock %}
 {% block body %}
@@ -10,9 +11,7 @@
         <p>This application will allow users to save their Python functions in a code library.</p>
     </div>
     <div class="row">
-        <div class="col-auto text-bg-info rounded">
-            Your input is processed in Amazon Web Services and through OpenAI API.
-        </div>
+        {{ info("Your input is processed in Amazon Web Services and through OpenAI API.") }}
     </div>
 </div>
 {% endblock %}
