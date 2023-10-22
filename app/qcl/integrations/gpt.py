@@ -1,7 +1,7 @@
 import json
-import openai
 import os
 import re
+import openai
 from qcl.utils import code_format
 
 

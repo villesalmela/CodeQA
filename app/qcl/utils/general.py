@@ -1,5 +1,5 @@
-from flask import request
 import time
+from flask import request
 
 
 def get_current_time() -> int:

@@ -1,7 +1,8 @@
-# setup logging
 import logging
+import os
 import sys
 
+# setup logging
 formatter = logging.Formatter(
     "%(asctime)s - %(name)s - %(levelname)s - [%(module)s: %(funcName)s: %(lineno)d]: %(message)s"
 )
@@ -14,7 +15,6 @@ root_logger.setLevel(logging.DEBUG)
 root_logger.addHandler(stream_handler)
 
 # do rest of imports
-import os
 from flask import Flask
 from flask_caching import Cache
 from flask_sqlalchemy import SQLAlchemy

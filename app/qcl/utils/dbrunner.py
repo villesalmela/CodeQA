@@ -1,7 +1,7 @@
-from qcl import app, db
+from uuid import UUID
 from sqlalchemy.sql import text
 from sqlalchemy.engine import Result
-from uuid import UUID
+from qcl import app, db
 
 
 def execute(query: str, params: dict[str, str | int | bool | UUID] = {}) -> Result:

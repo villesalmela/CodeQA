@@ -1,7 +1,7 @@
 import logging
 import os
-import psycopg2
 from pathlib import Path
+import psycopg2
 
 logging.basicConfig(level=logging.INFO)
 
@@ -27,7 +27,7 @@ def initialize_database():
         cur = conn.cursor()
 
         # fetch the queries
-        query = Path("schema.sql").read_text()
+        query = Path("schema.sql").read_text(encoding="utf-8")
 
         # execute the queries
         cur.execute(query)
@@ -36,7 +36,7 @@ def initialize_database():
         conn.commit()
         cur.close()
         conn.close()
-    except:
+    except Exception:
         logging.exception("Database init failed.")
 
 

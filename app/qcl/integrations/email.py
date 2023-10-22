@@ -1,5 +1,5 @@
-from mailjet_rest import Client
 import os
+from mailjet_rest import Client
 from qcl import app
 
 api_key = os.environ.get("MJ_APIKEY_PUBLIC")

@@ -1,7 +1,6 @@
 from datetime import datetime
-from email_validator import validate_email
-from flask import g
 from uuid import UUID
+from email_validator import validate_email
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from qcl import app, cache

@@ -1,3 +1,5 @@
+from functools import wraps
+from uuid import UUID
 from flask import (
     abort,
     g,
@@ -8,8 +10,6 @@ from flask import (
     session as client_session,
     url_for,
 )
-from functools import wraps
-from uuid import UUID
 
 from qcl import app
 from qcl.integrations import gpt, linter, testrunner, security, typecheck
@@ -89,7 +89,7 @@ def pre_request():
             message = "Session expired"
             app.logger.debug(message)
             abort(401, message)
-        except:
+        except Exception:
             # client has non-existing session_id or bad user
             del client_session["session_id"]
             message = "Invalid session"
@@ -365,7 +365,6 @@ def doc():
 
     elif request.method == "POST":
         if form.generate.data:  # clicked generate tests
-            # TODO: validate source code
             try:
                 documented = gpt.enhance_code(form.code.data, mode="doc")
                 error = False
@@ -667,7 +666,7 @@ def edit_user(action: str, user_id_str: str):
 
     # otherwise
     else:
-        return redirect(url_for(f"user", user_id_str=str(user_id)))
+        return redirect(url_for("user", user_id_str=str(user_id)))
 
 
 @app.route("/user/<string:user_id_str>", methods=["GET"])
@@ -680,11 +679,11 @@ def user(user_id_str: str):
         count_active_sessions = user.count_active_sessions()
     except ValueError:
         message = "User does not exist"
-        public_message = f"Failed to view user"  # public message is always same, to prevent user enumeration
+        public_message = "Failed to view user"  # public message is always same, to prevent user enumeration
         app.logger.error(message)
         abort(500, public_message)
     except Exception:
-        message = f"Failed to view user"
+        message = "Failed to view user"
         app.logger.exception(message)
         abort(500, message)
     return render_template(

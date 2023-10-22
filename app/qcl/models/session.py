@@ -1,6 +1,6 @@
-from flask import g
 from typing import Optional
 from uuid import UUID
+from flask import g
 
 from qcl import app, cache
 from qcl.utils import dbrunner, general, serialize
