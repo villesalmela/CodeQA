@@ -11,31 +11,6 @@
     color: red;
 }
 
-.overlay {
-    display: none; /* diplayed later by JS */
-    position: absolute;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 2;
-  }
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-
-  .spinner {
-    display: none; /* diplayed later by JS */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); /* otherwise topleft-corner is in the center */
-    z-index: 3;
-    animation: spin 1s linear infinite;
-  }
 
 /* row highlight in ace code editor */
 .line-highlight { background-color: dimgrey; position: absolute;}
