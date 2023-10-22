@@ -1,7 +1,7 @@
-import json
 import boto3
+import json
 import os
-import traceback
+
 
 # Load keys
 lambda_pytest_key_id = os.environ.get("PYTEST_KEY_ID")
@@ -19,9 +19,7 @@ session = boto3.Session(
 lambda_client = session.client("lambda")
 
 
-def execute(
-    func: str, test: str
-) -> dict[str, str | int | bool | list[str]]:
+def execute(func: str, test: str) -> dict:
     "Run the unit tests against the given function, using AWS lambda"
 
     data = json.dumps({"func": func, "test": test})
@@ -40,10 +38,8 @@ def execute(
     return out
 
 
-def handle(
-    result: dict[str, str | int | bool | list[str]]
-) -> tuple[bool, dict[str, int | list[str]]]:
-    "Handle results from the lambda function."    
+def handle(result: dict) -> tuple:
+    "Handle results from the lambda function."
 
     if "error" in result:
         if "Task timed out after" in result.get("errorMessage", ""):

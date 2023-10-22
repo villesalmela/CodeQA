@@ -1,8 +1,11 @@
-import subprocess
 import json
+import subprocess
+
 
 def run_pyright(filename) -> list[dict[str, str]]:
-    command = ["pyright", "--warnings","--outputjson", filename]
+    "Run pyright type-checking against a given file"
+
+    command = ["pyright", "--warnings", "--outputjson", filename]
     result = subprocess.run(command, capture_output=True, text=True, check=False)
 
     if result.returncode == 0:
@@ -15,8 +18,8 @@ def run_pyright(filename) -> list[dict[str, str]]:
             issue = {}
             issue["severity"] = diag["severity"]
             issue["message"] = diag["message"]
-            issue["line"] = diag["range"]["start"]["line"]+1
-            issue["endLine"] = diag["range"]["end"]["line"]+1
+            issue["line"] = diag["range"]["start"]["line"] + 1
+            issue["endLine"] = diag["range"]["end"]["line"] + 1
             issue["col"] = diag["range"]["start"]["character"]
             issue["endCol"] = diag["range"]["end"]["character"]
             out.append(issue)

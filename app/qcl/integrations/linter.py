@@ -1,23 +1,24 @@
 from io import StringIO
-from bs4 import BeautifulSoup
+import json
 from pylint.lint import Run
 from pylint.reporters.json_reporter import JSONReporter
-import json
+
 
 def run_pylint(filename):
-    
+    "Run pylint against a given file"
+
     # redirect output to temporary stringio object
     pylint_output = StringIO()
-    
+
     # get results in json
     reporter = JSONReporter(pylint_output)
-    
+
     # run pylint
     Run([filename], reporter=reporter, exit=False)
-    
+
     # scroll back to start
     pylint_output.seek(0)
-    
+
     # read the output
     lint_result = json.load(pylint_output)
 
