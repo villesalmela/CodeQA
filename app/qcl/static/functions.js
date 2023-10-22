@@ -270,7 +270,7 @@ function addEditor(editor_id, content, target_field = null, annotations = null) 
     }
     if (target_field != null) {
         // add editor content to form when it is submitted
-        document.querySelector('form').addEventListener('submit', function () {
+        document.getElementById('form').addEventListener('submit', function () {
             document.getElementById(target_field).value = editor.getValue();
         });
     }
