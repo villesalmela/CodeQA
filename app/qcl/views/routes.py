@@ -3,7 +3,7 @@ from qcl.utils import code_format, fileops
 from qcl.integrations import gpt, linter, testrunner, security, typecheck
 from qcl.models.user import User
 from qcl.models import user as user_module
-from qcl.models import function, ratings
+from qcl.models import function, ratings, search as search_module
 from qcl.views.forms import SignupForm, LoginForm, EmailVerificationForm, CodeForm, DocForm, TestForm, ClassifyForm
 from qcl.models.session import server_session
 
@@ -645,3 +645,13 @@ def save_rating():
 
     except Exception:
         return "", 500
+    
+
+@app.route("/search", methods=["GET"])
+@needs_user
+def search():
+    arg = request.args["arg"]
+    ret = search_module.search_keywords(arg)
+    ret.extend(search_module.search_usecase(arg))
+    ret.extend(search_module.search_code(arg))
+    return render_template("search.html.j2", search_results=ret, search_arg=arg)
