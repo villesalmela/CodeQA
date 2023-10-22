@@ -12,9 +12,14 @@
     {% endif %}
     <form method="POST" action="/verify_email">
         {{ form.csrf_token }}
-        <div>{{ form.code.label }}: {{ form.code() }}</div>
+        <div class="form-floating mb-3">
+            {{ form.code }}
+            <label for="code">Verification code</label>
+        </div>
+        <div class="btn-group">
+        <a href="/logout" class="btn btn-outline-danger">Log out</a>
         {{ form.submit }}
+        </div>
     </form>
-    <a href="/logout">Log out</a>
 </div>
 {% endblock %}
