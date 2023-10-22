@@ -48,6 +48,7 @@ class LoginForm(FlaskForm):
 class EmailVerificationForm(FlaskForm):
     code = StringField(
         "Verification code",
+        render_kw={"class": "form-control"},
         validators=[DataRequired("The code is required"), Length(min=6, max=12)],
     )
     submit = SubmitField("Submit", render_kw={"class": "btn btn-outline-light"})
