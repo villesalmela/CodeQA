@@ -1,7 +1,10 @@
 # setup logging
 import logging
 import sys
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - [%(module)s: %(funcName)s: %(lineno)d]: %(message)s')
+
+formatter = logging.Formatter(
+    "%(asctime)s - %(name)s - %(levelname)s - [%(module)s: %(funcName)s: %(lineno)d]: %(message)s"
+)
 
 stream_handler = logging.StreamHandler(sys.stderr)
 stream_handler.setFormatter(formatter)
@@ -28,21 +31,18 @@ cache.clear()
 
 # set content security policy (CSP)
 csp = {
-    'default-src': '\'self\'',
-    'script-src': [
-        '\'self\'',
-        'https://cdnjs.cloudflare.com',
-        'https://cdn.datatables.net'
+    "default-src": "'self'",
+    "script-src": [
+        "'self'",
+        "https://cdnjs.cloudflare.com",
+        "https://cdn.datatables.net",
     ],
-    'style-src': [
-        '\'self\'',
-        'https://cdnjs.cloudflare.com',
-        'https://cdn.datatables.net'
-        ],
-    'img-src': [
-        '\'self\'',
-        "data:"
-    ]
+    "style-src": [
+        "'self'",
+        "https://cdnjs.cloudflare.com",
+        "https://cdn.datatables.net",
+    ],
+    "img-src": ["'self'", "data:"],
 }
 
 # force HTTPS in production
@@ -57,7 +57,7 @@ talisman = Talisman(
     force_https=https,
     force_https_permanent=https,
     strict_transport_security=https,
-    session_cookie_secure=https
+    session_cookie_secure=https,
 )
 
 # load routes
