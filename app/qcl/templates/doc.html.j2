@@ -58,3 +58,6 @@
     addEditor("editor_box_documented", {{ form.documented.data | tojson }}, "documented")
 </script>
 {% endblock %}
+{% block afterbody %}
+{% include 'load_popovers.html' %}
+{% endblock %}
