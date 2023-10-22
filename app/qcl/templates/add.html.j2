@@ -1,3 +1,4 @@
+{% from 'instructions.html.j2' import instructions %}
 {% from 'tabs.html.j2' import input_tab, output_tab %}
 {% extends 'base.html.j2' %}
 {% block head %}
@@ -18,6 +19,12 @@
             <li class="breadcrumb-item">Classify</li>
         </ol>
     </nav>
+    {{ instructions("Let's run a few static checkers against your function!<br>
+      - Linting with pylint<br>
+      - Type checking with pyright<br>
+      - Security checking with bandit<br>
+    Place your function in the input tab, run the checks and review results on the output tab.<br>
+    You can repeat the process as many times as needed, adjusting the function after reviewing the results.") }}
     {{ input_tab() }}
 </div>
 {% include 'error_form.html.j2' %}

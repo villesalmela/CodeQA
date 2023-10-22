@@ -1,3 +1,4 @@
+{% from 'instructions.html.j2' import instructions %}
 {% from 'tabs.html.j2' import input_tab, output_tab %}
 {% extends 'base.html.j2' %}
 {% block head %}
@@ -18,9 +19,9 @@
         </ol>
     </nav>
 
-    <p>Click 'Generate Docs' to have OpenAI to automatically enhance your code with comments and docstrings.
-        Feel free to further improve the result, before clicking 'Next'.
-    </p>
+    {{ instructions("Next, let's get your function documented!<br>
+      Click 'Generate Docs' and let AI do the work for you.<br>
+      If you're not satisfied with the result, you can try again or adjust the result manually.") }}
     {{ input_tab() }}
 </div>
 {% include 'error_form.html.j2' %}
