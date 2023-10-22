@@ -6,51 +6,57 @@
 {% endblock %}
 {% block title %}Code QA{% endblock %}
 {% block body %}
+
 <div class="container">
-<h1>Set Metadata</h1>
-<nav class="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/add">Check</a></li>
-        <li class="breadcrumb-item"><a href="/doc">Document</a></li>
-        <li class="breadcrumb-item"><a href="/test">Test</a></li>
-        <li class="breadcrumb-item active">Classify</li>
-    </ol>
-</nav>
+    <h1>Set Metadata</h1>
+    <nav class="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/add">Check</a></li>
+            <li class="breadcrumb-item"><a href="/doc">Document</a></li>
+            <li class="breadcrumb-item"><a href="/test">Test</a></li>
+            <li class="breadcrumb-item active">Classify</li>
+        </ol>
+    </nav>
 </div>
+
 <div class="container">
-{{ instructions("Finally, give your function a name and describe its use case.<br>
-Fill in some keywords to help categorize your function or click 'Generate Keywords' to have AI help you out.") }}
-{% include 'error_form.html.j2' %}
-{% if error %}
-<div class="container rounded border border-danger">
-    <p class="error-message">{{ error }}</p>
-</div>
-{% endif %}
-<form id="form" method="POST" action="/classify" novalidate>
-    {{ form.csrf_token }}
-    <div class="form-floating mb-3">
-        {{ form.name }}
-        <label for="name">Function name</label>
+    {{ instructions("Finally, give your function a name and describe its use case.<br>
+    Fill in some keywords to help categorize your function or click 'Generate Keywords' to have AI help you out.") }}
+    {% include 'error_form.html.j2' %}
+
+    {% if error %}
+    <div class="container rounded border border-danger">
+        <p class="error-message">{{ error }}</p>
     </div>
-    <div class="form-floating mb-3">
-        {{ form.usecase }}
-        <label for="usecase">Use case</label>
-    </div>
-    <div class="form-floating">
-        {{ form.keywords }}
-        <label for="keywords">Keywords (comma separated)</label>
-    </div>
-    <div class="btn-group my-3">
-        <a href="/test" class="btn btn-outline-warning">Back</a>
-        {{ form.generate }}
-        {{ form.save }}
-    </div>
-</form>
-<script nonce="{{ csp_nonce() }}">
-    setSpinner("form")
-</script>
+    {% endif %}
+
+    <form id="form" method="POST" action="/classify" novalidate>
+        {{ form.csrf_token }}
+        <div class="form-floating mb-3">
+            {{ form.name }}
+            <label for="name">Function name</label>
+        </div>
+        <div class="form-floating mb-3">
+            {{ form.usecase }}
+            <label for="usecase">Use case</label>
+        </div>
+        <div class="form-floating">
+            {{ form.keywords }}
+            <label for="keywords">Keywords (comma separated)</label>
+        </div>
+        <div class="btn-group my-3">
+            <a href="/test" class="btn btn-outline-warning">Back</a>
+            {{ form.generate }}
+            {{ form.save }}
+        </div>
+    </form>
+
+    <script nonce="{{ csp_nonce() }}">
+        setSpinner("form")
+    </script>
 </div>
 {% endblock %}
+
 {% block afterbody %}
 {% include 'load_popovers.html' %}
 {% endblock %}

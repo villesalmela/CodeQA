@@ -7,31 +7,31 @@
 {% block title %}Code QA{% endblock %}
 {% block body %}
 <div class="container">
-<h1>Functions</h1>
-<table id="functions">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Use Case</th>
-            <th>Keywords</th>
-            <th>Author</th>
-            <th>Average Rating</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in fdata %}
-        <tr>
-            <td><a href="/function/{{ item.function_id }}">{{ item.name }}</a></td>
-            <td>{{ item.usecase }}</td>
-            <td>{{ item.keywords }}</td>
-            <td>{{ item.username }}</td>
-            <td>{{ item.average }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<script nonce="{{ csp_nonce() }}">
-    makeDatatable("functions")
-</script>
+    <h1>Functions</h1>
+    <table id="functions">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Use Case</th>
+                <th>Keywords</th>
+                <th>Author</th>
+                <th>Average Rating</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in fdata %}
+            <tr>
+                <td><a href="/function/{{ item.function_id }}">{{ item.name }}</a></td>
+                <td>{{ item.usecase }}</td>
+                <td>{{ item.keywords }}</td>
+                <td>{{ item.username }}</td>
+                <td>{{ item.average }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script nonce="{{ csp_nonce() }}">
+        makeDatatable("functions")
+    </script>
 </div>
 {% endblock %}

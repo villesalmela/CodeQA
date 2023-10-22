@@ -6,8 +6,10 @@
 {% endblock %}
 {% block title %}Code QA{% endblock %}
 {% block body %}
+
 <div class="container">
     <h1>User Management</h1>
+
     <table id="users">
         <thead>
             <tr>
@@ -38,8 +40,10 @@
             {% endfor %}
         </tbody>
     </table>
+
     <script nonce="{{ csp_nonce() }}">
         makeDatatable("users")
     </script>
+
 </div>
 {% endblock %}
