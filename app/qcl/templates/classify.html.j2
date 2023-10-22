@@ -1,3 +1,4 @@
+{% from 'instructions.html.j2' import instructions %}
 {% extends 'base.html.j2' %}
 {% block head%}
 {% include 'load_jquery.html' %}
@@ -17,9 +18,8 @@
 </nav>
 </div>
 <div class="container">
-<p>Give your function and name and describe its use case. Click 'Generate Keywords' to have OpenAI
-    automatically generate a list of relevant keywords for you. You can modify the results before saving the function.
-</p>
+{{ instructions("Finally, give your function a name and describe its use case.<br>
+Fill in some keywords to help categorize your function or click 'Generate Keywords' to have AI help you out.") }}
 {% include 'error_form.html.j2' %}
 {% if error %}
 <div class="container rounded border border-danger">
@@ -50,4 +50,7 @@
     setSpinner("form")
 </script>
 </div>
+{% endblock %}
+{% block afterbody %}
+{% include 'load_popovers.html' %}
 {% endblock %}

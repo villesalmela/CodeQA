@@ -3,6 +3,13 @@ from wtforms import StringField, PasswordField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length
 from qcl.utils import validate
 
+def get_popdict(content, placement="top"):
+    return {
+        "data-bs-toggle": "popover",
+        "data-bs-trigger": "hover focus",
+        "data-bs-placement": placement,
+        "data-bs-content": content
+    }
 
 class SignupForm(FlaskForm):
     username = StringField('Username', render_kw={"class": "form-control"}, validators=[
@@ -41,7 +48,7 @@ class CodeForm(FlaskForm):
     code = StringField(validators=[
         Length(min=10, max=1500)
     ])
-    run = SubmitField("Run Checks", render_kw={"class": "btn btn-outline-primary"})
+    run = SubmitField("Run Checks", render_kw={"class": "btn btn-outline-primary", **get_popdict("Run static checks against your input. Results will come below. Feel free to adjuts your input and re-run the checks.")})
     doc = SubmitField("Next", render_kw={"class": "btn btn-outline-success"})
 
 
@@ -52,7 +59,7 @@ class DocForm(FlaskForm):
     documented = StringField(validators=[
         Length(min=10, max=2000)
     ])
-    generate = SubmitField("Generate Docs", render_kw={"formnovalidate": True, "class": "btn btn-outline-primary"})
+    generate = SubmitField("Generate Docs", render_kw={"formnovalidate": True, "class": "btn btn-outline-primary", **get_popdict("Send your input to OpenAI LLM, which will analyze your code and enrich it with docstrings, comments and type hints. Feel free to adjust both input and output.")})
     next = SubmitField("Next", render_kw={"class": "btn btn-outline-success"})
 
 
@@ -63,8 +70,8 @@ class TestForm(FlaskForm):
     unittests = StringField(validators=[
         Length(min=10, max=3000)
     ])
-    generate = SubmitField("Generate Tests", render_kw={"formnovalidate": True, "class": "btn btn-outline-primary"})
-    run = SubmitField("Run Tests", render_kw={"formnovalidate": True, "class": "btn btn-outline-primary"})
+    generate = SubmitField("1. Generate Tests", render_kw={"formnovalidate": True, "class": "btn btn-outline-primary", **get_popdict("Send your input to OpenAI LLM, which will analyze your code and and come up with a few unit tests. Feel free to adjust the output before running the tests.")})
+    run = SubmitField("2. Run Tests", render_kw={"formnovalidate": True, "class": "btn btn-outline-primary", **get_popdict("Run the unit tests against your function. Review the results and adjust either the source code or the unit tests until there are no errors.")})
     next = SubmitField("Next", render_kw={"class": "btn btn-outline-success"})
 
 
@@ -80,5 +87,5 @@ class ClassifyForm(FlaskForm):
         DataRequired(),
         Length(min=10, max=500)
     ])
-    generate = SubmitField("Generate keywords", render_kw={"formnovalidate": True, "class": "btn btn-outline-primary"})
+    generate = SubmitField("Generate keywords", render_kw={"formnovalidate": True, "class": "btn btn-outline-primary", **get_popdict("Send your function to OpenAI LLM, which will analyze your code and come up with a few keywords. Feel free to adjust the keywords before saving.", "bottom")})
     save = SubmitField("Save function", render_kw={"class": "btn btn-outline-success"})

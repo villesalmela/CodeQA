@@ -1,3 +1,4 @@
+{% from 'instructions.html.j2' import instructions %}
 {% from 'tabs.html.j2' import input_tab, output_tab %}
 {% extends 'base.html.j2' %}
 {% block head %}
@@ -20,9 +21,11 @@
 </nav>
 </div>
 <div class="container">
-<p>Click 'Generate Tests' to have OpenAI automatically generate a set of unit tests for your code.
-    You can then review and modify the tests, before running them with 'Run Tests'
-</p>
+{{ instructions("Now we'll generate unit tests for your code, and then run the tests.<br><br>
+First, click 'Generate Tests' and AI will whip up some tests for you.<br>
+You can now review the generated tests, and modify them before the next step.<br><br>
+Second, click 'Run Tests' and see how well the tests performed.<br>
+You can now adjust both the code and tests, and re-run the tests as many times as needed.") }}
 {{ input_tab() }}
 {% include 'error_form.html.j2' %}
 {% if error %}
@@ -105,4 +108,7 @@
     addEditor("editor_box_unittests", {{ form.unittests.data | tojson }}, "unittests")
 </script>
 </div>
+{% endblock %}
+{% block afterbody %}
+{% include 'load_popovers.html' %}
 {% endblock %}
