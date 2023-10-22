@@ -1,0 +1,16 @@
+{% macro instructions(content) %}
+<div class="accordion mb-3" id="instructions">
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#item1">
+        Instructions
+      </button>
+    </h2>
+    <div id="item1" class="accordion-collapse collapse" data-bs-parent="#instructions">
+      <div class="accordion-body">
+        {{ content }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}
