@@ -89,22 +89,24 @@ Administrator:
 
 Please don't delete or disable the last admin account, since recovering from that needs direct access to the production database.
 
-Couple of test functions were saved to the library using these inputs:
+Here's a test function you could try:
 ```python
 def celsius_to_fahrenheit(celsius):
     fahrenheit = (9/5) * celsius + 32
     return fahrenheit
 ```
 
+And a flawed function to test all static checkers:
 ```python
-def factorial(n):
+def factorial(n: int) -> int:
     if not isinstance(n, int):
         raise TypeError("Input must be an integer.")
     if n < 0:
         raise ValueError("Input must be a non-negative integer.")
     if n == 0:
-        return 1
+        return "1"
     else:
+        exec("print('test')")
         return n * factorial(n-1)
 ```
 
