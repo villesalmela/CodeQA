@@ -1,9 +1,10 @@
 # Code QA
 ## Status
-The application is work in progress.  
+The app is ready for evaluation and can be tested at https://codeqa.online
+
 [Status history](../../wiki/StatusHistory) is available on wiki.
 
-## Objective
+## Use Case
 This application will allow users to save their Python functions in a code library. The functions are searchable and browsable, publicly available for other users.
 The application supports users in documentation and quality control of their functions.
 
@@ -15,22 +16,29 @@ The application supports users in documentation and quality control of their fun
 - Users can save new functions to the library
 - Application will do following checks and provide feedback
     - Linting using pylint
-    - Type checking using mypy
+    - Type checking using pyright
     - Security checking using bandit
-    - (Optional) Automated documentation using OpenAI API
-    - (Optional) Automated generation of unit tests using OpenAI API
-    - (Optional) Automated execution of unit tests using AWS Lambda
-    - (Optional) Automated keyword classification using OpenAI API
-- Users are given possibility to refine their code before saving, based on feedback
-- Users can classify their functions using keywords
+    - Automated documentation using OpenAI API
+    - Automated generation of unit tests using OpenAI API
+    - Automated execution of unit tests using AWS Lambda
+    - Automated keyword classification using OpenAI API
 
 ### Browsing and searching the library
 - Users can search and view functions saved by other people
-- Users can rate functions and sort by rating
+- Users can rate functions and sort by average rating
+    - Users cannot rate their own functions
 
 ### Library management
-- Administrators can manage users and saved functions
-- Users can remove their own saved functions
+- Administrators can delete any saved functions
+- Users can delete their own saved functions
+
+### User management
+- Administrators can:
+    - Enable/Disable users
+    - Lock/Unlock users (temporary 5 min suspension)
+    - Promote/Demote users
+    - Revoke user's active sessions
+    - Delete users
 
 ## Database Schema
 Database schema is [detailed in wiki](../../wiki/Schema). However here is a short summary.
@@ -67,6 +75,7 @@ Application is packaged into docker container using Github Action, and uploaded 
 AWS AppRunner is serving the app, which is available at https://codeqa.online
 
 To create an account, you need to use your university email address.
+A verification code is sent to your email, and it's required during first login.
 
 Test accounts are available:
 
