@@ -10,19 +10,21 @@ def format(source_code: str) -> str:
 
 
 def check_function_only(source_code: str) -> None:
-    """Parse given source code and confirm it constains at least one function.
-    Besides the function, only imports are allowed, other content will raise syntax error."""
+    """Parse given source code and confirm it constains exactly one function.
+    Besides the function, only imports and classes are allowed, other content will raise syntax error."""
     
     parsed = ast.parse(source_code)
+    functions = [node for node in parsed.body if isinstance(node, ast.FunctionDef)]
     
-    # check we can find at least one function
-    has_function = any(isinstance(node, ast.FunctionDef) for node in ast.walk(parsed))
-    if not has_function:
+    # check we can find excatly one function
+    if len(functions) < 1:
         raise SyntaxError("No function found")
-
-    # check there is nothing but functions and imports
+    elif len(functions) > 1:
+        raise SyntaxError("Found too many functions")
+    
+    # check there is nothing but functions, imports and classes
     for node in parsed.body:
-        if not isinstance(node, (ast.FunctionDef, ast.Import, ast.ImportFrom)):
+        if not isinstance(node, (ast.FunctionDef, ast.ClassDef, ast.Import, ast.ImportFrom)):
             raise SyntaxError(f"Unexpected statement {type(node).__name__}")
 
 
