@@ -5,7 +5,7 @@ from wtforms.validators import ValidationError
 
 def check_email(form, field) -> None:
     "Custom validator that works with WTForms"
-    
+
     ALLOWED_DOMAINS = [x.strip() for x in os.environ["ALLOWED_DOMAINS"].split(",")]
     domain_ok = False
     try:
@@ -17,6 +17,8 @@ def check_email(form, field) -> None:
     except EmailNotValidError as e:
         message = str(e)
     if not domain_ok:
-        message += " The application is in private preview, email domain restrictions apply."
+        message += (
+            " The application is in private preview, email domain restrictions apply."
+        )
     if message:
         raise ValidationError(message)

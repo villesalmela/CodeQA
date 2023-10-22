@@ -1,5 +1,6 @@
 import secrets
 
+
 def get_verification_code() -> str:
     verification_code = ""
 
