@@ -3,14 +3,17 @@
 }
 
 .editor-box {
-    height: 500px;
-    width: 100%;
+  height: 500px;
+  width: 100%;
 }
 
 .error-message {
-    color: red;
+  color: red;
 }
 
 
 /* row highlight in ace code editor */
-.line-highlight { background-color: dimgrey; position: absolute;}
+.line-highlight {
+  background-color: dimgrey;
+  position: absolute;
+}
