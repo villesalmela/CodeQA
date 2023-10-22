@@ -9,43 +9,49 @@
 {% endblock %}
 {% block title %}Code QA{% endblock %}
 {% block body %}
+
 <div class="container">
-<h1>Testing</h1>
-<nav class="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/add">Check</a></li>
-        <li class="breadcrumb-item"><a href="/doc">Document</a></li>
-        <li class="breadcrumb-item active">Test</li>
-        <li class="breadcrumb-item">Classify</li>
-    </ol>
-</nav>
+    <h1>Testing</h1>
+    <nav class="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/add">Check</a></li>
+            <li class="breadcrumb-item"><a href="/doc">Document</a></li>
+            <li class="breadcrumb-item active">Test</li>
+            <li class="breadcrumb-item">Classify</li>
+        </ol>
+    </nav>
 </div>
+
 <div class="container">
-{{ instructions("Now we'll generate unit tests for your code, and then run the tests.<br><br>
-First, click 'Generate Tests' and AI will whip up some tests for you.<br>
-You can now review the generated tests, and modify them before the next step.<br><br>
-Second, click 'Run Tests' and see how well the tests performed.<br>
-You can now adjust both the code and tests, and re-run the tests as many times as needed.") }}
-{{ input_tab() }}
-{% include 'error_form.html.j2' %}
-{% if error %}
-<div class="container rounded border border-danger">
-    <p class="error-message">{{ error }}</p>
-</div>
-{% endif %}
-<form id="form" method="POST" action="/test" novalidate>
-    <div class="container border border-primary rounded">
-        {{ form.csrf_token }}
-        <label for="editor_box_documented" class="form-label">Source Code (Documented)</label>
-        <div id="editor_box_documented" class="editor-box"></div>
+    {{ instructions("Now we'll generate unit tests for your code, and then run the tests.<br><br>
+    First, click 'Generate Tests' and AI will whip up some tests for you.<br>
+    You can now review the generated tests, and modify them before the next step.<br><br>
+    Second, click 'Run Tests' and see how well the tests performed.<br>
+    You can now adjust both the code and tests, and re-run the tests as many times as needed.") }}
+    {{ input_tab() }}
+
+    {% include 'error_form.html.j2' %}
+    {% if error %}
+    <div class="container rounded border border-danger">
+        <p class="error-message">{{ error }}</p>
     </div>
-    <div class="btn-group my-3">
-        <a href="/doc" class="btn btn-outline-warning">Back</a>
-        {{ form.generate }}
-        {{ form.run }}
-        {{ form.next }}
-    </div>
-    
+    {% endif %}
+
+    <form id="form" method="POST" action="/test" novalidate>
+
+        <div class="container border border-primary rounded">
+            {{ form.csrf_token }}
+            <label for="editor_box_documented" class="form-label">Source Code (Documented)</label>
+            <div id="editor_box_documented" class="editor-box"></div>
+        </div>
+
+        <div class="btn-group my-3">
+            <a href="/doc" class="btn btn-outline-warning">Back</a>
+            {{ form.generate }}
+            {{ form.run }}
+            {{ form.next }}
+        </div>
+
         <div class="row">
             <div class="col">
                 {{ output_tab(editable=True) }}
@@ -56,59 +62,67 @@ You can now adjust both the code and tests, and re-run the tests as many times a
                     <input type="hidden" id="unittests" name="unittests">
                 </div>
             </div>
+
             <div class="col">
-            {{ output_tab(editable=False) }}
+                {{ output_tab(editable=False) }}
                 <div class="container border border-secondary rounded">
                     {% if failures %}
-                        <label for="test-results">Test results</label>
-                        {% if ok_count %}
-                        <span class="badge text-bg-success">Success: {{ ok_count }}</span>
-                        {% endif %}
-                        {% if fail_count %}
-                        <span class="badge text-bg-danger">Failure: {{ fail_count }}</span>
-                        {% endif %}
-                        <table id="test-results">
-                        
+                    <label for="test-results">Test results</label>
+                    {% if ok_count %}
+                    <span class="badge text-bg-success">Success: {{ ok_count }}</span>
+                    {% endif %}
+                    {% if fail_count %}
+                    <span class="badge text-bg-danger">Failure: {{ fail_count }}</span>
+                    {% endif %}
+
+                    <table id="test-results">
+
                         <thead>
-                        <tr>
-                            <th>Failure</th>
-                        </tr>
+                            <tr>
+                                <th>Failure</th>
+                            </tr>
                         </thead>
 
-                        <tbody>    
-                        {% for item in failures %}
-                            <tr><td>{{ item }}</td></tr>
-                        {% endfor %}
+                        <tbody>
+                            {% for item in failures %}
+                            <tr>
+                                <td>{{ item }}</td>
+                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
-                        <script nonce="{{ csp_nonce() }}">
-                            // render newlines in message field
-                            var columns = [
-                                {
-                                    "render": function(data, type, row){
-                                        return data.split("\n").join("<br/>");
-                                    }
+
+                    <script nonce="{{ csp_nonce() }}">
+                        // render newlines in message field
+                        var columns = [
+                            {
+                                "render": function (data, type, row) {
+                                    return data.split("\n").join("<br/>");
                                 }
-                            ]
-                            // apply datatables script to security results
-                            makeDatatable("test-results", columns)
-                        </script>
+                            }
+                        ]
+                        // apply datatables script to security results
+                        makeDatatable("test-results", columns)
+                    </script>
                     {% else %}
-                        <p>No errors</p>
-                        {% if ok_count %}
-                            <span class="badge text-bg-success">Success: {{ ok_count }}</span>
-                        {% endif %}
+                    <p>No errors</p>
+
+                    {% if ok_count %}
+                    <span class="badge text-bg-success">Success: {{ ok_count }}</span>
+                    {% endif %}
                     {% endif %}
                 </div>
             </div>
-</form>
-<script nonce="{{ csp_nonce() }}">
-    setSpinner("form")
-    addEditor("editor_box_documented", {{ form.documented.data | tojson }}, "documented")
-    addEditor("editor_box_unittests", {{ form.unittests.data | tojson }}, "unittests")
-</script>
+    </form>
+
+    <script nonce="{{ csp_nonce() }}">
+        setSpinner("form")
+        addEditor("editor_box_documented", {{ form.documented.data | tojson }}, "documented")
+        addEditor("editor_box_unittests", {{ form.unittests.data | tojson }}, "unittests")
+    </script>
 </div>
 {% endblock %}
+
 {% block afterbody %}
 {% include 'load_popovers.html' %}
 {% endblock %}

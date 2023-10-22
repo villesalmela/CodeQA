@@ -2,13 +2,13 @@
 {% block title %}Sign Up to Code QA{% endblock %}
 {% block body %}
 <div class="container">
-<h1>Register</h1>
-{% include 'error_form.html.j2' %}
-<form method="POST" action="/register">
-    {{ form.csrf_token }}
-    <div>{{ form.username.label }}: {{ form.username() }}</div>
-    <div>{{ form.password.label }}: {{ form.password() }}</div>
-    {{ form.register }}
-</form>
+    <h1>Register</h1>
+    {% include 'error_form.html.j2' %}
+    <form method="POST" action="/register">
+        {{ form.csrf_token }}
+        <div>{{ form.username.label }}: {{ form.username() }}</div>
+        <div>{{ form.password.label }}: {{ form.password() }}</div>
+        {{ form.register }}
+    </form>
 </div>
 {% endblock %}

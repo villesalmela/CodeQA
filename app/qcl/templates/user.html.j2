@@ -8,137 +8,150 @@
 {% block body %}
 
 <div class="container">
+
     <div class="row">
         <div class="col">
-            <p class="fs-2 text d-inline">User: {{ user.name }}</p>{{' <span class="badge text-bg-success">Email Verified</span>' if user.verified else ' <span class="badge text-bg-danger">Email Unverified</span>' }}
+            <p class="fs-2 text d-inline">User: {{ user.name }}</p>{{' <span class="badge text-bg-success">Email
+                Verified</span>' if user.verified else ' <span class="badge text-bg-danger">Email Unverified</span>' }}
         </div>
         <div class="col d-flex justify-content-end">
-            <form action="/edit_user/delete/{{ user.id }}", method="post">
+            <form action="/edit_user/delete/{{ user.id }}" , method="post">
                 <input type="submit" value="Delete User" class="btn btn-outline-danger">
             </form>
         </div>
     </div>
+
     <div class="row">
         <div class="col-2">
             {% if user.role == "admin" %}
-                <span class="badge text-bg-warning">Role: admin</span>
+            <span class="badge text-bg-warning">Role: admin</span>
             {% else %}
-                <span class="badge text-bg-primary">Role: user</span>
+            <span class="badge text-bg-primary">Role: user</span>
             {% endif %}
         </div>
+
         <div class="col-2">
             {% if user.role == "admin" %}
-            <form action="/edit_user/demote/{{ user.id }}", method="post">
-                <input type="submit" value="Demote" class="btn btn-outline-warning"
-                    data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="right"
+            <form action="/edit_user/demote/{{ user.id }}" , method="post">
+                <input type="submit" value="Demote" class="btn btn-outline-warning" data-bs-toggle="popover"
+                    data-bs-trigger="hover focus" data-bs-placement="right"
                     data-bs-content="Remove user's admin rights.">
             </form>
             {% else %}
-            <form action="/edit_user/promote/{{ user.id }}", method="post">
-                <input type="submit" value="Promote" class="btn btn-outline-warning"
-                    data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="right"
-                    data-bs-content="Grant user admin rights.">
+            <form action="/edit_user/promote/{{ user.id }}" , method="post">
+                <input type="submit" value="Promote" class="btn btn-outline-warning" data-bs-toggle="popover"
+                    data-bs-trigger="hover focus" data-bs-placement="right" data-bs-content="Grant user admin rights.">
             </form>
             {% endif %}
         </div>
     </div>
+
     <div class="row">
         <div class="col-2">
             {% if user.disabled %}
-                <span class="badge text-bg-danger">Status: disabled</span>
+            <span class="badge text-bg-danger">Status: disabled</span>
             {% else %}
-                <span class="badge text-bg-success">Status: enabled</span>
+            <span class="badge text-bg-success">Status: enabled</span>
             {% endif %}
-            
+
         </div>
+
         <div class="col-2">
             {% if user.disabled %}
-            <form action="/edit_user/enable/{{ user.id }}", method="post">
-                <input type="submit" value="Enable" class="btn btn-outline-success"
-                    data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="right"
-                    data-bs-content="Enable user account.">
+            <form action="/edit_user/enable/{{ user.id }}" , method="post">
+                <input type="submit" value="Enable" class="btn btn-outline-success" data-bs-toggle="popover"
+                    data-bs-trigger="hover focus" data-bs-placement="right" data-bs-content="Enable user account.">
             </form>
             {% else %}
-            <form action="/edit_user/disable/{{ user.id }}", method="post">
-                <input type="submit" value="Disable" class="btn btn-outline-danger"
-                    data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="right"
+            <form action="/edit_user/disable/{{ user.id }}" , method="post">
+                <input type="submit" value="Disable" class="btn btn-outline-danger" data-bs-toggle="popover"
+                    data-bs-trigger="hover focus" data-bs-placement="right"
                     data-bs-content="Disable user account. User cannot start a new session and existing sessions become invalid.">
             </form>
             {% endif %}
         </div>
     </div>
+
     <div class="row">
         <div class="col-2">
             {% if user.locked %}
-                <span class="badge text-bg-warning">Status: locked</span>
+            <span class="badge text-bg-warning">Status: locked</span>
             {% else %}
-                <span class="badge text-bg-success">Status: unlocked</span>
+            <span class="badge text-bg-success">Status: unlocked</span>
             {% endif %}
         </div>
+
         <div class="col-2">
             {% if user.locked %}
-            <form action="/edit_user/unlock/{{ user.id }}", method="post">
-                <input type="submit" value="Unlock" class="btn btn-outline-success"
-                    data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="right"
+            <form action="/edit_user/unlock/{{ user.id }}" , method="post">
+                <input type="submit" value="Unlock" class="btn btn-outline-success" data-bs-toggle="popover"
+                    data-bs-trigger="hover focus" data-bs-placement="right"
                     data-bs-content="Lift temporary account lock.">
             </form>
             {% else %}
-            <form action="/edit_user/lock/{{ user.id }}", method="post">
-                <input type="submit" value="Lock" class="btn btn-outline-warning"
-                    data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="right"
+            <form action="/edit_user/lock/{{ user.id }}" , method="post">
+                <input type="submit" value="Lock" class="btn btn-outline-warning" data-bs-toggle="popover"
+                    data-bs-trigger="hover focus" data-bs-placement="right"
                     data-bs-content="Temporarily lock account, for 5 minutes.">
             </form>
             {% endif %}
         </div>
     </div>
+
     <div class="row">
         <div class="col-2">
             {% if count_active_sessions > 0 %}
-                <span class="badge text-bg-success">{{ count_active_sessions }} Active Sessions</span>
+            <span class="badge text-bg-success">{{ count_active_sessions }} Active Sessions</span>
             {% else %}
-                <span class="badge text-bg-secondary">No active sessions</span>
+            <span class="badge text-bg-secondary">No active sessions</span>
             {% endif %}
         </div>
+
         <div class="col-2">
-            <form action="/edit_user/logout/{{ user.id }}", method="post">
-                <input type="submit" value="Logout" class="btn btn-outline-warning"
-                    data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="right"
+            <form action="/edit_user/logout/{{ user.id }}" , method="post">
+                <input type="submit" value="Logout" class="btn btn-outline-warning" data-bs-toggle="popover"
+                    data-bs-trigger="hover focus" data-bs-placement="right"
                     data-bs-content="Revoke all sessions. User is forced to login again on all devices.">
             </form>
         </div>
     </div>
 </div>
+
 <div class="container mt-3">
-<h2>Functions</h2>
-{% if data %}
-<table id="functions">
-    <thead>
-        <tr>
-            <th>name</th>
-            <th>usecase</th>
-            <th>keywords</th>
-            <th>average rating</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in data %}
-        <tr>
-            <td><a href="/function/{{ item.function_id }}">{{ item.name }}</a></td>
-            <td>{{ item.usecase }}</td>
-            <td>{{ item.keywords }}</td>
-            <td>{{ item.average }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<script nonce="{{ csp_nonce() }}">
-    makeDatatable("functions")
-</script>
-{% else %}
-<p>User has not added any functions</p>
-{% endif %}
+    <h2>Functions</h2>
+
+    {% if data %}
+    <table id="functions">
+        <thead>
+            <tr>
+                <th>name</th>
+                <th>usecase</th>
+                <th>keywords</th>
+                <th>average rating</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in data %}
+            <tr>
+                <td><a href="/function/{{ item.function_id }}">{{ item.name }}</a></td>
+                <td>{{ item.usecase }}</td>
+                <td>{{ item.keywords }}</td>
+                <td>{{ item.average }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script nonce="{{ csp_nonce() }}">
+        makeDatatable("functions")
+    </script>
+
+    {% else %}
+    <p>User has not added any functions</p>
+    {% endif %}
 </div>
 {% endblock %}
+
 {% block afterbody %}
 {% include 'load_popovers.html' %}
 {% endblock %}

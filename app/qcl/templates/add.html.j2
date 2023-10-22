@@ -9,6 +9,7 @@
 {% endblock %}
 {% block title %}Code QA{% endblock %}
 {% block body %}
+
 <div class="container">
     <h1>Static Checking</h1>
     <nav class="breadcrumb">
@@ -20,19 +21,21 @@
         </ol>
     </nav>
     {{ instructions("Let's run a few static checkers against your function!<br>
-      - Linting with pylint<br>
-      - Type checking with pyright<br>
-      - Security checking with bandit<br>
+    - Linting with pylint<br>
+    - Type checking with pyright<br>
+    - Security checking with bandit<br>
     Place your function in the input tab, run the checks and review results on the output tab.<br>
     You can repeat the process as many times as needed, adjusting the function after reviewing the results.") }}
     {{ input_tab() }}
 </div>
+
 {% include 'error_form.html.j2' %}
 {% if error %}
 <div class="container rounded border border-danger">
     <p class="error-message">{{ error }}</p>
 </div>
 {% endif %}
+
 <form id="form" method="POST" action="/add" novalidate>
     <div class="container border border-primary rounded">
         {{ form.csrf_token }}
@@ -41,19 +44,22 @@
         <input type="hidden" id="code" name="code">
     </div>
     <div class="container">
-    <div class="btn-group my-3">
-        {{ form.run }}
-        {{ form.doc }}
-    </div>
+        <div class="btn-group my-3">
+            {{ form.run }}
+            {{ form.doc }}
+        </div>
     </div>
 </form>
+
 <script nonce="{{ csp_nonce() }}">
     setSpinner("form")
     addEditor("editor_box", {{ form.code.data | tojson }}, "code")
 </script>
+
 <div class="container">
-{{ output_tab(editable=False) }}
+    {{ output_tab(editable=False) }}
 </div>
+
 <div class="container border border-secondary rounded">
     <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
@@ -75,6 +81,7 @@
                     0}}</span></button>
         </li>
     </ul>
+
     <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade show active" id="linting-tab-pane" role="tabpanel" aria-labelledby="linting-tab"
             tabindex="0">
@@ -112,6 +119,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+
             <script nonce="{{ csp_nonce() }}">
                 // highlight code when related row is clicked
                 addRowHandler("lint-results", pylintRowClicked)
@@ -119,7 +127,6 @@
                 // apply datatables script to linting results
                 makeDatatable("lint-results")
             </script>
-
 
             <div id="lint_box" class="editor-box"></div>
             <script nonce="{{ csp_nonce() }}">
@@ -131,12 +138,11 @@
             <p>No errors or warnings.</p>
             {% endif %}
         </div>
+
         <div class="tab-pane fade" id="typing-tab-pane" role="tabpanel" aria-labelledby="typing-tab" tabindex="0">
             {% if type_result is defined and type_result|length > 0 %}
-            <p>Click on a row to highlight the relevant part in code window. Click on an ID number to view more details
-                about the
-                issue.
-                Feel free to make adjustments in the source code and run the check again.</p>
+            <p>Click on a row to highlight the relevant part in code window.</p>
+
             <table id="type-results">
                 <thead>
                     <tr>
@@ -161,6 +167,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+
             <script nonce="{{ csp_nonce() }}">
                 // highlight code when related row is clicked
                 addRowHandler("type-results", pyrightRowClicked)
@@ -182,7 +189,6 @@
                 makeDatatable("type-results", columns)
             </script>
 
-
             <div id="type_box" class="editor-box"></div>
             <script nonce="{{ csp_nonce() }}">
                 // add editor box for type results
@@ -192,14 +198,13 @@
             {% else %}
             <p>No errors or warnings.</p>
             {% endif %}
-
         </div>
+
         <div class="tab-pane fade" id="security-tab-pane" role="tabpanel" aria-labelledby="security-tab" tabindex="0">
             {% if security_result is defined and security_result|length > 0 %}
-            <p>Click on a row to highlight the relevant part in code window. Click on an ID number to view more details
-                about the
-                issue.
-                Feel free to make adjustments in the source code and run the check again.</p>
+
+            <p>Click on a row to highlight the relevant part in code window.</p>
+
             <table id="security-results">
                 <thead>
                     <tr>
@@ -236,6 +241,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+
             <script nonce="{{ csp_nonce() }}">
                 // highlight code when related row is clicked
                 addRowHandler("security-results", banditRowClicked)
@@ -243,7 +249,6 @@
                 // apply datatables script to security results
                 makeDatatable("security-results")
             </script>
-
 
             <div id="security_box" class="editor-box"></div>
             <script nonce="{{ csp_nonce() }}">
@@ -254,12 +259,11 @@
             {% else %}
             <p>No errors or warnings.</p>
             {% endif %}
-
         </div>
     </div>
 </div>
-
 {% endblock %}
+
 {% block afterbody %}
 {% include 'load_popovers.html' %}
 {% endblock %}

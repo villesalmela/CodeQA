@@ -1,8 +1,8 @@
 {% macro output_tab(editable=False) %}
 {% if editable %}
-    {% set badge = '<span class="badge text-bg-info">Editable</span>' %}
+{% set badge = '<span class="badge text-bg-info">Editable</span>' %}
 {% else %}
-    {% set badge = '<span class="badge text-bg-warning">Read-only</span>' %}
+{% set badge = '<span class="badge text-bg-warning">Read-only</span>' %}
 {% endif %}
 <ul class="nav nav-tabs">
   <li class="nav-item">

@@ -1,11 +1,11 @@
 {% if form.errors %}
 <div class="container rounded border border-danger">
-<ul class="errors">
-    {% for field_name, field_errors in form.errors|dictsort if field_errors %}
-    {% for error in field_errors %}
-    <li><span class="error-message">{{ form[field_name].label }}: {{ error }}</span></li>
-    {% endfor %}
-    {% endfor %}
-</ul>
+    <ul class="errors">
+        {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+        {% for error in field_errors %}
+        <li><span class="error-message">{{ form[field_name].label }}: {{ error }}</span></li>
+        {% endfor %}
+        {% endfor %}
+    </ul>
 </div>
 {% endif %}

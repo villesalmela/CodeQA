@@ -2,26 +2,30 @@
 {% block title %}Login to Code QA{% endblock %}
 {% block body %}
 <div class="container">
-<h1>Login</h1>
-{% include 'error_form.html.j2' %}
-{% if error %}
-<div class="container rounded border border-danger">
-    <p class="error-message">Invalid Credentials</p>
-</div>
-{% endif %}
-<form method="POST" action="/login">
-    {{ form.csrf_token }}
-    <div class="form-floating mb-3">
-        {{ form.username }}
-        <label for="username">Email address</label>
+
+    <h1>Login</h1>
+    {% include 'error_form.html.j2' %}
+
+    {% if error %}
+    <div class="container rounded border border-danger">
+        <p class="error-message">Invalid Credentials</p>
     </div>
-    <div class="form-floating">
-        {{ form.password }}
-        <label for="password">Password</label>
-    </div>
-    {{ form.login }}
-</form>
-<br>
-<a href="/register">Create a new account</a>
+    {% endif %}
+
+    <form method="POST" action="/login">
+        {{ form.csrf_token }}
+        <div class="form-floating mb-3">
+            {{ form.username }}
+            <label for="username">Email address</label>
+        </div>
+        <div class="form-floating">
+            {{ form.password }}
+            <label for="password">Password</label>
+        </div>
+        {{ form.login }}
+    </form>
+
+    <br>
+    <a href="/register">Create a new account</a>
 </div>
 {% endblock %}

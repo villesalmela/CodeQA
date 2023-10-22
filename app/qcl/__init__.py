@@ -1,7 +1,11 @@
-# setup logging
 import logging
+import os
 import sys
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - [%(module)s: %(funcName)s: %(lineno)d]: %(message)s')
+
+# setup logging
+formatter = logging.Formatter(
+    "%(asctime)s - %(name)s - %(levelname)s - [%(module)s: %(funcName)s: %(lineno)d]: %(message)s"
+)
 
 stream_handler = logging.StreamHandler(sys.stderr)
 stream_handler.setFormatter(formatter)
@@ -11,7 +15,6 @@ root_logger.setLevel(logging.DEBUG)
 root_logger.addHandler(stream_handler)
 
 # do rest of imports
-import os
 from flask import Flask
 from flask_caching import Cache
 from flask_sqlalchemy import SQLAlchemy
@@ -28,21 +31,18 @@ cache.clear()
 
 # set content security policy (CSP)
 csp = {
-    'default-src': '\'self\'',
-    'script-src': [
-        '\'self\'',
-        'https://cdnjs.cloudflare.com',
-        'https://cdn.datatables.net'
+    "default-src": "'self'",
+    "script-src": [
+        "'self'",
+        "https://cdnjs.cloudflare.com",
+        "https://cdn.datatables.net",
     ],
-    'style-src': [
-        '\'self\'',
-        'https://cdnjs.cloudflare.com',
-        'https://cdn.datatables.net'
-        ],
-    'img-src': [
-        '\'self\'',
-        "data:"
-    ]
+    "style-src": [
+        "'self'",
+        "https://cdnjs.cloudflare.com",
+        "https://cdn.datatables.net",
+    ],
+    "img-src": ["'self'", "data:"],
 }
 
 # force HTTPS in production
@@ -57,7 +57,7 @@ talisman = Talisman(
     force_https=https,
     force_https_permanent=https,
     strict_transport_security=https,
-    session_cookie_secure=https
+    session_cookie_secure=https,
 )
 
 # load routes

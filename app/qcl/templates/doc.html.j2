@@ -8,6 +8,7 @@
 {% endblock %}
 {% block title %}Code QA{% endblock %}
 {% block body %}
+
 <div class="container">
     <h1>Documentation</h1>
     <nav class="breadcrumb">
@@ -20,16 +21,18 @@
     </nav>
 
     {{ instructions("Next, let's get your function documented!<br>
-      Click 'Generate Docs' and let AI do the work for you.<br>
-      If you're not satisfied with the result, you can try again or adjust the result manually.") }}
+    Click 'Generate Docs' and let AI do the work for you.<br>
+    If you're not satisfied with the result, you can try again or adjust the result manually.") }}
     {{ input_tab() }}
 </div>
+
 {% include 'error_form.html.j2' %}
 {% if error %}
 <div class="container rounded border border-danger">
     <p class="error-message">{{ error }}</p>
 </div>
 {% endif %}
+
 <form id="form" method="POST" action="/doc" novalidate>
     <div class="container border border-primary rounded">
         {{ form.csrf_token }}
@@ -53,12 +56,14 @@
         <input type="hidden" id="documented" name="documented">
     </div>
 </form>
+
 <script nonce="{{ csp_nonce() }}">
     setSpinner("form")
     addEditor("editor_box_code", {{ form.code.data | tojson }}, "code")
     addEditor("editor_box_documented", {{ form.documented.data | tojson }}, "documented")
 </script>
 {% endblock %}
+
 {% block afterbody %}
 {% include 'load_popovers.html' %}
 {% endblock %}

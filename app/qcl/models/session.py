@@ -1,22 +1,31 @@
-from qcl.utils import dbrunner, general, serialize
-from flask import g
-from qcl import app, cache
-from uuid import UUID
 from typing import Optional
+from uuid import UUID
+from flask import g
+
+from qcl import app, cache
+from qcl.utils import dbrunner, general, serialize
 
 SESSION_MAX_LIFETIME = 3600
-def invalidate_session_cache(session_id: Optional[UUID]=None):
+
+
+def invalidate_session_cache(session_id: Optional[UUID] = None):
     if session_id is None:
         session_id = g.psql_session_id
     cache.delete_memoized(PSQLSession.open, session_id)
 
-class PSQLSession:
 
+class PSQLSession:
     @staticmethod
     @cache.memoize(timeout=300)
     def open(session_id: UUID) -> tuple[str, dict]:
         app.logger.debug("Opening existing session")
-        query = "SELECT user_id, created, data FROM sessions WHERE session_id=:session_id"
+        query = (
+            """
+            SELECT user_id, created, data
+            FROM sessions
+            WHERE session_id=:session_id
+            """
+        )
         params = {"session_id": session_id}
         try:
             result = dbrunner.execute(query, params)
@@ -50,16 +59,20 @@ class PSQLSession:
     @staticmethod
     def is_open() -> bool:
         return hasattr(g, "psql_session")
-    
+
     @staticmethod
     def get(key):
         return g.psql_session.get(key)
-    
+
     @staticmethod
     def new(user_id: UUID) -> UUID:
         data = {}
         app.logger.debug("Creating new session")
-        query = "INSERT INTO sessions (user_id, data) VALUES (:user_id, :data) RETURNING session_id"
+        query = """
+            INSERT INTO sessions (user_id, data)
+            VALUES (:user_id, :data)
+            RETURNING session_id
+            """
         data_bytes = serialize.compress(data)
         params = {"user_id": user_id, "data": data_bytes}
         try:
@@ -79,7 +92,11 @@ class PSQLSession:
         if g.psql_session_modified:
             invalidate_session_cache()
             app.logger.debug("Session modified, writing to db")
-            query = "UPDATE sessions SET data=:data WHERE session_id=:session_id"
+            query = """
+                UPDATE sessions
+                SET data=:data
+                WHERE session_id=:session_id
+                """
             data = serialize.compress(g.psql_session)
             params = {"session_id": g.psql_session_id, "data": data}
             try:
@@ -88,12 +105,15 @@ class PSQLSession:
                 raise RuntimeError("Failed to write session") from e
         else:
             app.logger.debug("Session NOT modified, NOT writing to db")
-            
+
     @staticmethod
     def delete() -> None:
         app.logger.debug("Deleting session")
         invalidate_session_cache()
-        query = "DELETE FROM sessions WHERE session_id=:session_id"
+        query = """
+            DELETE FROM sessions
+            WHERE session_id=:session_id
+            """
         params = {"session_id": g.psql_session_id}
         try:
             dbrunner.execute(query, params)
@@ -105,12 +125,16 @@ class PSQLSession:
 
     @staticmethod
     def logout(user_id: UUID) -> None:
-        query = "DELETE FROM sessions WHERE user_id=:user_id RETURNING session_id"
+        query = """
+            DELETE FROM sessions
+            WHERE user_id=:user_id
+            RETURNING session_id
+            """
         params = {"user_id": user_id}
         result = dbrunner.execute(query, params)
         rows = result.all()
         for row in rows:
             invalidate_session_cache(row.session_id)
-        
+
 
 server_session = PSQLSession()
